@@ -15,10 +15,8 @@ Sequence followed: open app → land on Activity Tracker → observe state → g
 1. Permission vs. Connection mismatch — The card shows a green "Permission Granted" badge, but directly below it asks to connect a fitness app via "Connect Now." Seeing "Granted" next to an unfulfilled action reads as contradictory.
 2. Step goal inconsistency — Before connecting a fitness app, the screen shows a "10k Steps" goal (in a thought-bubble). After connecting and syncing, it shows "8,000 Daily Step Goal." These two numbers don't match, which looks like a data/display bug.
 3. Duplicate CTAs for the same action — "Start a Challenge" (top, yellow, rocket icon) and "+ Create Challenge" (Challenge Zone, dark button) both lead to challenge creation. Two different button styles and labels for one action creates redundancy and unclear hierarchy.
-4. Challenge Zone icon is misleading — The empty state uses a shoe icon with a red prohibition/strike-through circle, which visually communicates "no walking/shoes allowed" — the opposite of what a fitness challenge section should convey.
-5. Streak logic unclear — "0 Days Streak" is shown with no indication of what triggers it to start (e.g., hitting the daily step goal, opening the app daily, etc.).
-6. Illustration style inconsistency — The step-progress banner uses a semi-realistic illustrated park scene, while the Challenge Zone directly below uses a flat, minimal icon with a plain background. The shift in visual style across the same page feels disjointed, as if designed by two different teams.
-7. Duplicate step counters — "0 steps" is shown twice in slightly different formats on the same screen (once near the character, once near the footprint icon on the track), without adding extra clarity.
+4. Streak logic unclear — "0 Days Streak" is shown with no indication of what triggers it to start (e.g., hitting the daily step goal, opening the app daily, etc.).
+5. Illustration style inconsistency — The step-progress banner uses a semi-realistic illustrated park scene, while the Challenge Zone directly below uses a flat, minimal icon with a plain background. The shift in visual style across the same page feels disjointed, as if designed by two different teams.
 
  Suggested Improvements->
 
@@ -28,7 +26,6 @@ Sequence followed: open app → land on Activity Tracker → observe state → g
 - Replace the prohibition-style shoe icon in Challenge Zone with a more inviting visual (e.g., flag, footprints, trophy outline) and give it a simple illustrated background to match the rest of the page, rather than a flat icon on a blank background.
 - Clarify streak logic with a short explanatory line (e.g., "Hit your daily step goal to start your streak").
 - Align illustration styles across the page — either make all sections flat/minimal, or give the Challenge Zone a small illustrated scene matching the banner above, so the page feels visually consistent.
-- Remove redundant step counters; show one clear, prominent steps-today value.
 
 
  3. Play Page — Detailed Review->
