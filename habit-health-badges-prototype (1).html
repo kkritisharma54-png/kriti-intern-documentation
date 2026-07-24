@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Health — Badges &amp; Achievements Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS (derived from Habit Health screenshots) ============ */
+:root{
+  --navy:#1B4F9C; --blue:#1A5AC2; --blue-soft:#EDF4FD; --blue-border:#D8E6F8;
+  --dark:#262626; --strip:#3B2320;
+  --orange:#F5821F; --orange-soft:#FDF2E6; --orange-dash:#F0820F;
+  --cream:#FCF6E3; --cream-border:#F1E2B6;
+  --green-card:#EDF6EE; --green-border:#D7EAD9; --hc:#2E8B33;
+  --ink:#1F2937; --muted:#6B7A90; --faint:#98A4B6;
+  --bg:#F6F8FB; --line:#E6EBF2; --card:#FFFFFF;
+  --bronze:#B0705F; --silver:#98A4B4; --gold:#D6A93F; --platinum:#C7CEDA; --badge-blue:#4A76C9;
+  --radius:16px; --shadow:0 2px 10px rgba(27,79,156,.06);
+  --font:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font-family:var(--font);cursor:pointer;border:none;background:none;font-size:inherit;color:inherit}
+a{color:inherit;text-decoration:none}
+img,svg{display:block}
+.container{max-width:1280px;margin:0 auto;padding:0 28px}
+@media (max-width:760px){.container{padding:0 16px}}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ============ CHROME: top strip, header, nav ============ */
+.topstrip{height:8px;background:var(--strip)}
+header.site{background:#fff;border-bottom:1px solid var(--line)}
+.site-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 28px;max-width:1280px;margin:0 auto}
+.logo{display:flex;flex-direction:column;line-height:1;cursor:pointer;user-select:none}
+.logo .word{font-weight:800;font-size:27px;letter-spacing:1px;color:var(--navy);font-family:Georgia,'Times New Roman',serif}
+.logo .word .a{color:var(--orange)}
+.logo .sub{font-size:9.5px;letter-spacing:6.5px;color:var(--navy);font-weight:600;margin-top:2px;padding-left:2px}
+.util{display:flex;align-items:center;gap:26px}
+.util-item{display:flex;align-items:center;gap:7px;font-size:14.5px;color:#33404F;cursor:pointer;white-space:nowrap}
+.util-item svg{width:19px;height:19px;stroke:#33404F}
+.hc-coin{width:19px;height:19px;border-radius:50%;background:var(--hc);color:#fff;font-size:8.5px;font-weight:700;display:flex;align-items:center;justify-content:center;letter-spacing:.2px}
+.hc-float{position:relative}
+.hc-bump{position:absolute;top:-14px;left:50%;transform:translateX(-50%);color:var(--hc);font-weight:700;font-size:12px;opacity:0;pointer-events:none}
+.hc-bump.on{animation:bump 1.6s ease forwards}
+@keyframes bump{0%{opacity:0;transform:translate(-50%,4px)}20%{opacity:1}80%{opacity:1;transform:translate(-50%,-8px)}100%{opacity:0;transform:translate(-50%,-14px)}}
+.avatar-wrap{position:relative;display:flex;align-items:center;gap:6px;cursor:pointer}
+.avatar{width:34px;height:34px;border-radius:50%;background:#2E3947;color:#fff;font-weight:600;font-size:14px;display:flex;align-items:center;justify-content:center}
+.chev{width:14px;height:14px;stroke:#33404F}
+nav.main{background:var(--dark)}
+.nav-inner{max-width:1280px;margin:0 auto;padding:0 18px;display:flex;align-items:center;flex-wrap:wrap}
+.nav-link{color:#fff;font-size:15px;padding:15px 17px;border-radius:8px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.nav-link:hover{background:rgba(255,255,255,.08)}
+.nav-link.active{background:var(--blue);margin:6px 4px;padding:9px 17px}
+.nav-link svg{width:13px;height:13px;stroke:#fff}
+
+/* ============ SCREENS ============ */
+.screen{display:none;padding-bottom:90px}
+.screen.on{display:block}
+.page-blue{background:linear-gradient(180deg,#E9F1FC 0%,#F6F8FB 320px)}
+h1.page{font-size:30px;font-weight:700;color:#16202C}
+.crumb{font-size:14.5px;color:var(--faint);padding:22px 0 4px}
+.crumb b{color:#5B6B80;font-weight:500}
+.crumb .lk{cursor:pointer}
+.crumb .lk:hover{color:var(--blue)}
+
+/* ============ HOME ============ */
+.hi{padding:20px 0 14px;font-size:19px}
+.hi b{font-weight:700}
+.hero{position:relative;border-radius:10px;overflow:hidden;background:linear-gradient(100deg,#F3F6FA 0%,#E8EFF8 55%,#DCE7F4 100%);min-height:250px;display:flex;align-items:center}
+.hero-art{position:absolute;inset:0;pointer-events:none}
+.hero-inner{position:relative;padding:38px 48px;max-width:760px}
+.hero .cashless{font-size:56px;font-weight:800;color:var(--orange);letter-spacing:.5px;line-height:1.05}
+.hero .cash-dots{display:flex;gap:7px;margin:10px 0 16px}
+.hero .cash-dots span{width:9px;height:9px;border-radius:50%}
+.hero-line{font-size:31px;color:#16202C}
+.hero-line b{color:var(--navy);font-weight:800}
+.hero-dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
+.hero-dots i{width:8px;height:8px;border-radius:50%;background:#C7D3E2}
+.hero-dots i.on{background:var(--navy)}
+.quick-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin:26px 0 8px}
+.qcard{border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;border:1px solid transparent;transition:transform .15s ease, box-shadow .15s ease;position:relative}
+.qcard:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.qcard .qicon{width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.qcard .qicon svg{width:22px;height:22px}
+.qcard .qt{font-size:17.5px;font-weight:700;color:#16202C}
+.qcard .qs{font-size:13.5px;color:var(--muted);margin-top:1px}
+.qcard .qarrow{margin-left:auto;width:32px;height:32px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.qcard .qarrow svg{width:15px;height:15px;stroke:#33404F}
+.qcard.cream{background:var(--cream);border-color:var(--cream-border)}
+.qcard.bluec{background:var(--blue-soft);border-color:var(--blue-border)}
+.qcard.greenc{background:var(--green-card);border-color:var(--green-border)}
+.new-pill{position:absolute;top:-11px;right:14px;background:var(--orange);color:#fff;font-size:11.5px;font-weight:700;letter-spacing:.6px;padding:4px 13px;border-radius:999px}
+.section-h{display:flex;align-items:center;justify-content:space-between;margin:34px 0 18px}
+.section-h h2{font-size:26px;font-weight:700;color:#16202C}
+.pager{display:flex;gap:10px}
+.pager button{width:34px;height:34px;border-radius:50%;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center}
+.pager svg{width:15px;height:15px;stroke:#33404F}
+.well-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px}
+.wcard{background:#F1F3F6;border-radius:12px;padding:26px 10px 20px;display:flex;flex-direction:column;align-items:center;gap:16px;cursor:pointer;transition:background .15s}
+.wcard:hover{background:#EAEEF3}
+.wcard .wicon{width:78px;height:78px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center}
+.wcard .wicon svg{width:36px;height:36px;stroke:var(--navy)}
+.wcard span{font-size:14.5px;color:#2A3644;text-align:center}
+
+/* ---- Achievements strip (PRD 5.2) ---- */
+.ach-strip{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 24px;margin:22px 0 6px;display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+.ach-cell{display:flex;align-items:center;gap:13px;min-width:200px}
+.ach-cell .tro{width:44px;height:44px}
+.ach-cell .t1{font-size:17.5px;font-weight:700;color:#16202C}
+.ach-cell .t2{font-size:13.5px;color:var(--muted)}
+.ach-div{width:1px;align-self:stretch;background:var(--line)}
+.ach-next{flex:1;min-width:250px}
+.ach-next .t1{font-size:15.5px;font-weight:700;color:#16202C;margin-bottom:7px}
+.ach-next .meta{font-size:13px;color:var(--muted);margin-top:6px}
+.bar{height:9px;border-radius:999px;background:#E7ECF3;overflow:hidden;position:relative}
+.bar>i{position:absolute;inset:0 auto 0 0;border-radius:999px;background:var(--blue);transition:width .6s ease}
+.bar.orange>i{background:var(--orange)}
+.bar-row{display:flex;align-items:center;gap:12px}
+.bar-row .pct{font-weight:700;color:var(--blue);font-size:15px}
+.bar-row .pct.orange{color:var(--orange)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);color:#fff;font-weight:600;font-size:15px;border-radius:999px;padding:11px 26px;transition:background .15s}
+.btn:hover{background:#1450AF}
+.btn.outline{background:#fff;color:var(--blue);border:1.6px solid var(--blue)}
+.btn.outline:hover{background:var(--blue-soft)}
+.flame{width:30px;height:30px}
+
+/* ---- Let's Get Moving widget ---- */
+.moving{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-top:26px;display:grid;grid-template-columns:1.55fr 1fr;overflow:hidden}
+@media (max-width:900px){.moving{grid-template-columns:1fr}}
+.mv-left{padding:24px 26px}
+.mv-left h3{font-size:24px;font-weight:700;display:flex;align-items:center;gap:8px}
+.mv-left .sub{color:var(--muted);font-size:14.5px;margin:2px 0 16px}
+.mv-scene{position:relative;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,#F2F7F1 0%,#E9F2E7 100%);height:290px}
+.mv-scene svg{width:100%;height:100%}
+.steps-chip{position:absolute;left:52px;top:52%;background:#fff;border-radius:999px;padding:5px 13px;font-size:13.5px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.12);display:flex;gap:6px;align-items:center}
+.mk{position:absolute;bottom:12px;font-size:13px;font-weight:600;color:#3A4757;display:flex;gap:5px;align-items:center;background:rgba(255,255,255,.75);padding:3px 9px;border-radius:999px}
+.mv-right{border-left:1px solid var(--line);padding:22px 24px;display:flex;flex-direction:column;gap:14px}
+@media (max-width:900px){.mv-right{border-left:none;border-top:1px solid var(--line)}}
+.sync-pill{align-self:flex-start;background:var(--blue-soft);color:#2A3B52;font-size:13.5px;padding:8px 16px;border-radius:999px;display:flex;align-items:center;gap:8px}
+.sync-pill svg{width:15px;height:15px;stroke:var(--blue)}
+.goal-card{border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px}
+.goal-ic{width:52px;height:52px;border-radius:12px;background:var(--orange-soft);display:flex;align-items:center;justify-content:center}
+.goal-ic svg{width:26px;height:26px;stroke:var(--orange)}
+.goal-num{font-size:26px;font-weight:800;color:#16202C;line-height:1.1}
+.goal-lab{font-size:14.5px;color:#3A4757}
+.cta-card{background:var(--green-card);border:1px solid var(--green-border);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px}
+.cta-card .t1{color:#3A4757;font-size:15px}
+.cta-card .t2{font-weight:700;font-size:16.5px;color:#16202C}
+.btn-yellow{background:linear-gradient(180deg,#FBD46A,#F6C63F);color:#3A2E10;font-weight:700;border-radius:12px;padding:13px 22px;display:flex;align-items:center;justify-content:center;gap:9px;font-size:15.5px;transition:filter .15s}
+.btn-yellow:hover{filter:brightness(1.03)}
+
+/* ---- Streak Saver card (PRD 5.3) ---- */
+.saver{position:relative;border:1px solid var(--line);border-radius:14px;padding:15px 18px 14px;cursor:pointer;background:#fff}
+.saver .head{display:flex;align-items:flex-start;gap:11px}
+.saver .t1{font-weight:700;font-size:16.5px;color:#16202C}
+.saver .t2{font-size:13px;color:var(--muted);margin-top:1px}
+.saver .days{display:flex;gap:9px;margin:12px 0 10px}
+.saver .day{width:30px;height:30px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center}
+.saver .day svg{width:15px;height:15px;stroke:#fff;stroke-width:3}
+.saver .day.off{background:#E8ECF1}
+.saver .foot{font-size:13.5px;color:#3A4757}
+</style>
+<style>
+/* ============ CHALLENGES PAGE ============ */
+.streak-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px 0 6px;flex-wrap:wrap}
+.streak-pill{margin:0 auto;background:linear-gradient(180deg,#EAF1FB,#DFE9F7);border-radius:999px;padding:12px 30px;display:flex;align-items:center;gap:10px;font-size:22px;box-shadow:0 3px 12px rgba(27,79,156,.10);cursor:pointer}
+.streak-pill b{font-weight:800;font-size:26px}
+.date-pill{background:#FCE9DC;border-radius:14px;padding:11px 20px;font-weight:700;color:#16202C;display:flex;align-items:center;gap:8px;font-size:17px}
+.zone-h{display:flex;align-items:center;justify-content:space-between;margin:34px 0 18px}
+.zone-h h2{font-size:28px;font-weight:700}
+.zone-h .see{color:var(--blue);font-weight:600;cursor:pointer;font-size:15.5px}
+.zone-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:22px}
+.chal-card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .15s, box-shadow .15s;display:flex;flex-direction:column}
+.chal-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(27,79,156,.10)}
+.chal-art{height:170px;position:relative;overflow:hidden}
+.chal-body{padding:14px 16px 16px;flex:1;display:flex;flex-direction:column;gap:10px}
+.chal-body .name{font-weight:700;font-size:17px}
+.chal-body .meta{font-size:13px;color:var(--muted)}
+.badge-chip-row{display:flex;flex-wrap:wrap;gap:7px}
+.b-chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;background:var(--orange-soft);border:1px solid #F6D9B8;color:#7A4A12;border-radius:999px;padding:4px 11px}
+.b-chip .mini-star{width:15px;height:15px}
+.b-chip.mut{background:#F1F3F6;border-color:#E3E8EF;color:#5B6B80;font-weight:500}
+/* art recreations */
+.art-spl{background:linear-gradient(180deg,#EDF3FB 55%,#2E5FA8 100%)}
+.art-rbl{background:linear-gradient(160deg,#F8C86B,#F0862B 60%,#E8621C)}
+.art-vs{background:linear-gradient(180deg,#C5D2E2,#9FB2C8)}
+.art-jss{background:linear-gradient(160deg,#E7F0FB,#CFE0F5)}
+.art-warm{background:linear-gradient(180deg,#8FA6BF,#5E7893)}
+.spl-title{position:absolute;left:18px;top:18px;font-family:Georgia,serif;font-style:italic;font-weight:700;color:#1B3F7E;font-size:23px;line-height:1.15}
+.spl-date{position:absolute;left:18px;top:78px;border:1.6px dashed #E88A1F;color:#E8821A;font-weight:700;font-size:12.5px;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,.6)}
+.rbl-band{position:absolute;left:0;right:0;top:52px;background:rgba(255,250,240,.92);padding:12px 16px;text-align:center}
+.rbl-band .t1{font-weight:800;font-size:21px;color:#17233A;letter-spacing:.5px}
+.rbl-band .t2{font-size:12px;color:#4A5568;margin-top:2px}
+.vs-mark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-style:italic;font-weight:800;font-size:64px;color:rgba(255,255,255,.85);text-shadow:0 2px 10px rgba(0,0,0,.18)}
+.vs-swoosh{position:absolute;left:-10%;right:-10%;bottom:-36px;height:120px;border-radius:50%;border:14px solid #2E5FA8;border-bottom:none;transform:rotate(-4deg)}
+.jss-trophy{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.warm-title{position:absolute;left:0;right:0;top:56px;text-align:center;color:#fff}
+.warm-title .t1{font-weight:800;font-size:24px;color:#F5A93F;letter-spacing:1px}
+.warm-title .t2{font-size:12.5px;margin-top:2px}
+
+/* ---- Challenge detail ---- */
+.cd-wrap{display:grid;grid-template-columns:1.7fr 1fr;gap:22px;align-items:start;margin-top:18px}
+@media (max-width:900px){.cd-wrap{grid-template-columns:1fr}}
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 24px}
+.panel h4{font-size:17px;font-weight:700;margin-bottom:14px}
+.gh-box{height:64px;border-radius:10px;background:#F1F3F6;margin-bottom:12px}
+.gh-title{color:#B6C0CC;font-weight:700;font-size:17px;margin-bottom:12px}
+.cd-head{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.cd-ic{width:64px;height:64px;border-radius:14px;background:var(--green-card);display:flex;align-items:center;justify-content:center;flex:none}
+.cd-name{font-size:22px;font-weight:700}
+.cd-meta{color:var(--muted);font-size:14.5px;margin-top:2px}
+.tag{display:inline-block;background:#F1F3F6;border-radius:999px;padding:6px 14px;font-size:13.5px;color:#2A3644;margin-top:10px}
+.earn-box{margin-top:16px;border:2px dashed var(--orange-dash);background:#FEF7EE;border-radius:12px;padding:13px 16px;display:flex;gap:12px;align-items:flex-start}
+.earn-box .t1{font-weight:700;font-size:15.5px;color:#16202C}
+.earn-box .t2{font-size:13.5px;color:var(--muted);margin-top:2px}
+.serial-line{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.serial-line .lab{font-weight:700;font-size:14.5px}
+.serial-line .bar{flex:1;min-width:140px}
+.serial-line .nxt{font-size:13.5px;color:var(--muted)}
+.locked-line{margin-top:12px;background:#F4F6F9;border:1px solid var(--line);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:11px;color:#5B6B80;font-size:14.5px}
+.done-box{margin-top:16px;background:#E9F5E9;border:1px solid #CDE6CD;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+.done-row{display:flex;align-items:center;gap:11px;flex-wrap:wrap;font-size:15.5px}
+.done-row b{font-weight:700}
+.done-note{font-size:13px;color:#6B7A90;font-style:italic;padding-left:47px}
+.hc-inline{display:inline-flex;align-items:center;gap:6px;color:var(--hc);font-weight:700;font-size:14.5px}
+.next-rung{margin-top:12px;border:2px dashed var(--orange-dash);background:#FFF9F2;border-radius:12px;padding:13px 16px}
+.next-rung .t1{font-weight:700;font-size:15px;margin-bottom:8px}
+.stage-tabs{display:inline-flex;gap:6px;background:#EFF2F6;border:1.5px dashed #C6CEDA;border-radius:999px;padding:5px}
+.stage-tabs button{font-size:12.5px;font-weight:600;color:#5B6B80;padding:6px 13px;border-radius:999px}
+.stage-tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.stage-lab{font-size:11px;letter-spacing:1.4px;font-weight:700;color:#9AA6B5;text-transform:uppercase;margin-bottom:6px}
+.prog-big{margin:6px 0 8px}
+.prog-big .bar{height:12px}
+.prog-caption{color:var(--muted);font-size:14.5px}
+.milestone{position:absolute;top:-4px;width:20px;height:20px;border-radius:50%;background:#fff;border:2.5px solid var(--gold);display:flex;align-items:center;justify-content:center;transform:translateX(-50%)}
+.milestone svg{width:10px;height:10px}
+
+/* ============ HUB (PRD 5.6) ============ */
+.stat-row{display:flex;gap:18px;flex-wrap:wrap;margin:16px 0 8px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px 26px;min-width:200px}
+.stat .n{font-size:24px;font-weight:800;color:var(--navy)}
+.stat .l{color:var(--muted);font-size:14.5px}
+.hub-sub{font-size:20px;font-weight:700;margin:22px 0 12px}
+.almost-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.almost{background:#FFF6EC;border:1px solid #F6DDBE;border-radius:14px;padding:15px 18px;display:flex;gap:14px;align-items:center;cursor:pointer}
+.almost .body{flex:1}
+.almost .t1{font-weight:700;font-size:16px;margin-bottom:7px}
+.almost .meta{font-size:13px;color:var(--muted);margin-top:6px}
+.chip-row{display:flex;gap:11px;flex-wrap:wrap;margin:24px 0 20px}
+.chip{border:1.5px solid #D5DCE6;background:#fff;border-radius:999px;padding:8px 21px;font-size:15px;color:#2A3644;cursor:pointer}
+.chip:hover{border-color:var(--blue)}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:18px}
+.bcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;gap:14px;cursor:pointer;transition:transform .15s, box-shadow .15s;min-height:104px}
+.bcard:hover{transform:translateY(-2px);box-shadow:0 5px 16px rgba(27,79,156,.10)}
+.bcard.locked{background:#F2F4F7;border-color:#E4E8EE;cursor:pointer}
+.bcard .body{flex:1;min-width:0}
+.bcard .t1{font-weight:700;font-size:15.5px;color:#16202C;display:flex;align-items:center;gap:7px}
+.bcard.locked .t1{color:#7C8899}
+.bcard .t2{font-size:13px;color:var(--muted);margin-top:5px}
+.bcard .bar{margin-top:9px}
+.bcard .pmeta{font-size:12.5px;color:var(--muted);margin-top:6px}
+.count-chip{font-size:11px;font-weight:700;background:#EDF4FD;color:var(--navy);border-radius:999px;padding:1.5px 8px}
+.badge-ic{width:52px;height:52px;flex:none;position:relative}
+.ring{position:absolute;inset:-5px;border:3px solid var(--orange);border-radius:50%}
+
+/* ============ BADGE DETAIL (PRD 5.7) ============ */
+.bd-head{display:flex;gap:20px;align-items:flex-start;margin:10px 0 22px;flex-wrap:wrap}
+.bd-head .t1{font-size:27px;font-weight:700}
+.bd-head .t2{color:#3A4757;font-size:15.5px;margin-top:4px;max-width:760px}
+.ladder{display:flex;flex-direction:column;gap:14px}
+.rung{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 20px;display:grid;grid-template-columns:230px 1fr 130px;gap:16px;align-items:center}
+@media (max-width:820px){.rung{grid-template-columns:1fr;gap:10px}}
+.rung.now{border:2px solid var(--orange)}
+.rung.locked{background:#F2F4F7;border-color:#E4E8EE}
+.rung .who{display:flex;gap:14px;align-items:center}
+.rung .tname{font-weight:700;font-size:17px}
+.rung.locked .tname{color:#7C8899}
+.rung .tsub{font-size:13.5px;color:var(--muted)}
+.rung .state{display:flex;align-items:center;gap:9px;font-size:15px;color:#2A3644}
+.rung.locked .state{color:#8A96A6}
+.rung .hc-cell{justify-self:end}
+.rules{margin-top:26px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+.rules h4{font-size:16.5px;font-weight:700;margin-bottom:10px}
+.rules p{font-size:14.5px;color:#3A4757;margin:7px 0;display:flex;gap:10px;align-items:flex-start}
+.rules p svg{flex:none;margin-top:3px}
+.week-strip{display:flex;gap:10px;align-items:center;margin:14px 0 4px;flex-wrap:wrap}
+
+/* ============ OVERLAYS ============ */
+.scrim{position:fixed;inset:0;background:rgba(90,99,112,.55);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+.scrim.on{display:flex}
+.modal{background:#fff;border-radius:20px;max-width:560px;width:100%;padding:34px 36px 26px;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:pop .3s ease}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+.modal .x{position:absolute;top:16px;right:16px;color:#8A96A6}
+.modal .x svg{width:18px;height:18px;stroke:#8A96A6}
+.confetti{position:absolute;top:0;left:0;right:0;height:190px;pointer-events:none}
+.confetti i{position:absolute;width:10px;height:10px;border-radius:3px;animation:fall 1.4s ease-out both}
+@keyframes fall{from{transform:translateY(-40px) rotate(0);opacity:0}30%{opacity:1}to{transform:translateY(var(--fy)) rotate(var(--fr));opacity:1}}
+.u-body{text-align:center;position:relative}
+.u-art{width:150px;height:150px;margin:6px auto 14px;position:relative}
+.tier-pill{display:inline-block;background:#F4E7DC;color:#4A3A2C;font-weight:700;font-size:13.5px;letter-spacing:1.5px;border-radius:999px;padding:6px 18px;margin-bottom:8px}
+.u-title{font-size:31px;font-weight:800;color:#16202C}
+.u-sub{font-size:16.5px;color:#3A4757;margin-top:6px}
+.u-hc{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--hc);font-weight:700;font-size:16.5px;margin:14px 0 2px}
+.u-next{margin:14px auto 0;max-width:420px;border:2px dashed var(--orange-dash);background:#FFF9F2;border-radius:12px;padding:11px 15px;text-align:left}
+.u-next .t1{font-weight:700;font-size:14px}
+.u-btns{display:flex;gap:14px;justify-content:center;margin-top:20px}
+.u-dots{display:flex;gap:8px;justify-content:center;margin-top:18px}
+.u-dots i{width:9px;height:9px;border-radius:50%;background:#CBD4DF;cursor:pointer}
+.u-dots i.on{background:var(--navy)}
+.u-arrow{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;background:#F1F3F6;display:flex;align-items:center;justify-content:center}
+.u-arrow:hover{background:#E6EAF0}
+.u-arrow svg{width:15px;height:15px;stroke:#33404F}
+.u-arrow.l{left:8px}.u-arrow.r{right:8px}
+
+/* profile dropdown (PRD 5.4) */
+.pmenu{position:absolute;top:52px;right:0;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 44px rgba(20,30,45,.16);width:290px;padding:8px 0;display:none;z-index:55}
+.pmenu.on{display:block}
+.pmenu .head{padding:13px 20px;font-weight:700;font-size:16.5px;border-bottom:1px solid var(--line)}
+.pmenu .it{padding:12px 20px;font-size:15px;color:#2A3644;display:flex;align-items:center;gap:10px;cursor:pointer;border-bottom:1px solid #F1F4F8}
+.pmenu .it:hover{background:#F7F9FC}
+.pmenu .it:last-child{border-bottom:none}
+.pmenu .it.badge-it{border:2px dashed var(--orange-dash);background:#FFF6EA;margin:4px 10px;border-radius:11px;font-weight:700;color:#16202C}
+.pmenu .it .np{margin-left:auto;background:var(--orange);color:#fff;font-size:11px;font-weight:700;letter-spacing:.5px;padding:3px 11px;border-radius:999px}
+.pmenu .it .sp{margin-left:auto}
+.pmenu .it .sp svg{width:14px;height:14px;stroke:#8A96A6}
+
+/* nudge banner (streak-at-risk) */
+.nudge{position:fixed;top:18px;right:18px;z-index:70;background:#fff;border:1px solid var(--line);border-left:5px solid var(--orange);border-radius:14px;box-shadow:0 14px 40px rgba(20,30,45,.18);padding:15px 18px;width:360px;max-width:calc(100vw - 36px);display:none;gap:12px}
+.nudge.on{display:flex;animation:slidein .35s ease}
+@keyframes slidein{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+.nudge .t1{font-weight:700;font-size:15px}
+.nudge .t2{font-size:13.5px;color:var(--muted);margin-top:3px}
+.nudge .acts{display:flex;gap:12px;margin-top:10px}
+.nudge .acts .go{color:var(--blue);font-weight:700;font-size:14px}
+.nudge .acts .dis{color:#8A96A6;font-size:14px}
+
+/* toast */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:#22303F;color:#fff;font-size:14.5px;padding:12px 22px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:all .3s ease;z-index:80;max-width:calc(100vw - 40px);text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* chatbot bubble */
+.bot{position:fixed;right:26px;bottom:26px;width:62px;height:62px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#7FB4F5,#2E6FD6);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(27,79,156,.35);z-index:40;cursor:pointer}
+
+/* ============ DEMO PANEL + ANNOTATIONS ============ */
+.demo{position:fixed;left:22px;bottom:22px;z-index:65;width:288px;background:#fff;border:1.5px dashed #B9C3D0;border-radius:16px;box-shadow:0 14px 40px rgba(20,30,45,.16);overflow:hidden}
+.demo .dhead{display:flex;align-items:center;gap:9px;padding:12px 16px;cursor:pointer;background:#F7F9FC}
+.demo .dhead .t{font-weight:700;font-size:13.5px;letter-spacing:.4px;color:#3A4757}
+.demo .dhead .dot{width:8px;height:8px;border-radius:50%;background:var(--orange)}
+.demo .dhead .tog{margin-left:auto}
+.demo .dhead .tog svg{width:15px;height:15px;stroke:#5B6B80;transition:transform .2s}
+.demo.min .dhead .tog svg{transform:rotate(180deg)}
+.demo .dbody{padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px}
+.demo.min .dbody{display:none}
+.dbtn{border:1px solid #D5DCE6;border-radius:10px;padding:9px 13px;font-size:13.5px;text-align:left;display:flex;align-items:center;gap:9px;color:#2A3644;background:#fff}
+.dbtn:hover{border-color:var(--blue);background:#F8FBFF}
+.dbtn.used{opacity:.45;pointer-events:none}
+.dbtn small{margin-left:auto;color:#98A4B6;font-size:11.5px}
+.dsw{display:flex;align-items:center;gap:10px;padding:9px 13px;border:1px solid #D5DCE6;border-radius:10px;font-size:13.5px;cursor:pointer}
+.dsw .track{margin-left:auto;width:36px;height:20px;border-radius:999px;background:#D5DCE6;position:relative;transition:background .2s}
+.dsw .track i{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s}
+.dsw.on .track{background:var(--orange)}
+.dsw.on .track i{left:18px}
+.dreset{color:#8A96A6;font-size:12.5px;text-align:center;padding-top:2px}
+.dreset:hover{color:var(--blue)}
+/* annotation mode */
+[data-prd]{position:relative}
+body.ann [data-prd]{outline:2.5px dashed var(--orange-dash);outline-offset:5px;border-radius:10px}
+body.ann [data-prd]::after{content:attr(data-prd);position:absolute;top:-13px;right:-9px;z-index:30;background:var(--orange);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;box-shadow:0 3px 8px rgba(0,0,0,.18);white-space:nowrap;font-family:var(--font)}
+body.ann [data-prd]:hover::before{content:attr(data-note);position:absolute;top:16px;right:-9px;z-index:31;background:#22303F;color:#fff;font-size:12px;font-weight:400;line-height:1.45;padding:9px 13px;border-radius:10px;width:280px;white-space:normal;box-shadow:0 10px 30px rgba(0,0,0,.3);font-family:var(--font)}
+</style>
+</head>
+<body>
+<div class="topstrip"></div>
+
+<!-- ================= HEADER ================= -->
+<header class="site">
+  <div class="site-inner">
+    <div class="logo" onclick="go('home')" title="Habit Health home">
+      <span class="word">H<span class="a">A</span>BIT</span>
+      <span class="sub">HEALTH</span>
+    </div>
+    <div class="util">
+      <div class="util-item hc-float" title="Habit coins wallet">
+        <span class="hc-bump" id="hcBump">+100</span>
+        <span class="hc-coin">Hc</span><span>Habit coins</span>
+      </div>
+      <div class="util-item"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 7h13v13H4z"/><path d="M7 7V4h13v13h-3"/><path d="M7 11h7M7 14.5h7"/></svg><span>My Records</span></div>
+      <div class="util-item"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M18 9a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10.5 20a1.8 1.8 0 0 0 3 0"/></svg><span>Notifications</span></div>
+      <div class="util-item"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12.5h5M6.5 6V5a1.8 1.8 0 0 1 1.8-1.8h9"/></svg><span>My Wallet</span></div>
+      <div class="util-item"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="9" cy="20" r="1.4"/><circle cx="17.5" cy="20" r="1.4"/><path d="M3 4h2.4l2.2 11.5h11l2.2-8.5H6.2"/></svg><span>Cart</span></div>
+      <div class="avatar-wrap" id="avatarBtn">
+        <div class="avatar">A</div>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        <!-- Profile dropdown — PRD 5.4 -->
+        <div class="pmenu" id="pmenu">
+          <div class="head">Aniket (Patient)</div>
+          <div class="it">Switch Profile <span class="sp"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span></div>
+          <div class="it">View/Edit Profile</div>
+          <div class="it">Articles</div>
+          <div class="it">My Bookings</div>
+          <div class="it">My Bills</div>
+          <div class="it">Family Hub</div>
+          <div class="it">Help &amp; FAQ</div>
+          <div class="it">Your Dost</div>
+          <div class="it">Habit tracker &amp; Reminder</div>
+          <div class="it badge-it" data-prd="5.4 Profile menu" data-note="Permanent entry point once the NEW tag retires. Lives with the other personal spaces (bookings, bills, records)." onclick="go('hub')">
+            <svg class="tro" width="21" height="21" viewBox="0 0 24 24"><path fill="#F5821F" d="M6 3h12v2h3v3c0 2.5-2 4.4-4.4 4.9A6 6 0 0 1 13 16.9V19h3v2H8v-2h3v-2.1a6 6 0 0 1-3.6-3.9C5 12.4 3 10.5 3 8V5h3V3zm-1 4v1c0 1.3.9 2.4 2.1 2.8A9 9 0 0 1 7 8V7H5zm14 0h-2v1c0 1-.04 1.9-.13 2.8A3 3 0 0 0 19 8V7z"/></svg>
+            Badges &amp; Achievements <span class="np">NEW</span>
+          </div>
+          <div class="it">Smart Reports</div>
+          <div class="it">Logout</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= NAV ================= -->
+<nav class="main">
+  <div class="nav-inner">
+    <span class="nav-link" onclick="deadEnd('My Benefits')">My Benefits</span>
+    <span class="nav-link" onclick="deadEnd('Packages')">Packages</span>
+    <span class="nav-link" onclick="deadEnd('Consultation')">Consultation</span>
+    <span class="nav-link" onclick="deadEnd('Vaccination')">Vaccination</span>
+    <span class="nav-link" onclick="deadEnd('Dental Procedures')">Dental Procedures</span>
+    <span class="nav-link" onclick="deadEnd('Lab & Diagnostics')">Lab &amp; Diagnostics <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></span>
+    <span class="nav-link" id="navChallenges" onclick="go('challenges')">Challenges</span>
+    <span class="nav-link" onclick="deadEnd('Assessment')">Assessment</span>
+    <span class="nav-link" onclick="deadEnd('Other Services')">Other Services <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></span>
+  </div>
+</nav>
+
+<!-- ================= HOME ================= -->
+<section class="screen on" id="scr-home">
+  <div class="container">
+    <div class="hi">Hi <b>Aniket</b></div>
+
+    <!-- hero banner (unchanged from live app) -->
+    <div class="hero">
+      <svg class="hero-art" viewBox="0 0 1200 250" preserveAspectRatio="xMaxYMid slice">
+        <circle cx="1080" cy="60" r="160" fill="#EDF3FA"/>
+        <circle cx="1150" cy="210" r="120" fill="#E2EBF6"/>
+        <rect x="880" y="40" width="70" height="150" rx="8" fill="#DCE6F2"/>
+        <rect x="960" y="70" width="70" height="120" rx="8" fill="#D2DEEE"/>
+        <rect x="1040" y="55" width="70" height="135" rx="8" fill="#DCE6F2"/>
+        <path d="M1120 40c-24 0-40 18-40 42s16 44 40 44" fill="none" stroke="#5B6B80" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="1122" cy="132" r="15" fill="none" stroke="#5B6B80" stroke-width="7"/>
+      </svg>
+      <div class="hero-inner">
+        <div class="cashless">Cashless</div>
+        <div class="cash-dots">
+          <span style="background:#F5821F"></span><span style="background:#F5821F"></span><span style="background:#1B4F9C"></span><span style="background:#F5821F"></span><span style="background:#1B4F9C"></span>
+        </div>
+        <div class="hero-line"><b>Annual Health Check</b> for You &amp; Your Family</div>
+      </div>
+      <div class="hero-dots"><i></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+
+    <!-- quick actions — 5.1 adds the Badges card, everything else untouched -->
+    <div class="quick-row">
+      <div class="qcard cream" onclick="deadEnd('Health Records')">
+        <div class="qicon"><svg viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="1.8"><path d="M4 7h13v13H4z"/><path d="M7 7V4h13v13h-3"/><path d="M7 11h7M7 14.5h7"/></svg></div>
+        <div><div class="qt">Health Records</div><div class="qs">Track your medical records in one place.</div></div>
+        <div class="qarrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </div>
+      <div class="qcard bluec" onclick="deadEnd('My Bookings')">
+        <div class="qicon"><svg viewBox="0 0 24 24" fill="none" stroke="#1A5AC2" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></div>
+        <div><div class="qt">My Bookings</div><div class="qs">Past &amp; Upcoming</div></div>
+        <div class="qarrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </div>
+      <div class="qcard cream" onclick="deadEnd('Smart Report')">
+        <div class="qicon"><svg viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8 15v-3M12 15V9M16 15v-5"/></svg></div>
+        <div><div class="qt">Smart Report</div><div class="qs">Advanced Lab Reports</div></div>
+        <div class="qarrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </div>
+    </div>
+
+    <!-- 5.2 Home achievements strip -->
+    <div class="ach-strip" data-prd="5.2 Achievements strip" data-note="One glance: what you've earned, the streak to protect today, and the next reward already in progress. Sits between quick actions and Wellness Solutions.">
+      <span class="new-pill">NEW</span>
+      <div class="ach-cell">
+        <svg class="tro" viewBox="0 0 24 24"><path fill="#F5821F" d="M6 3h12v2h3v3c0 2.5-2 4.4-4.4 4.9A6 6 0 0 1 13 16.9V19h3v2H8v-2h3v-2.1a6 6 0 0 1-3.6-3.9C5 12.4 3 10.5 3 8V5h3V3zm-1 4v1c0 1.3.9 2.4 2.1 2.8A9 9 0 0 1 7 8V7H5zm14 0h-2v1c0 1-.04 1.9-.13 2.8A3 3 0 0 0 19 8V7z"/></svg>
+        <div><div class="t1">Your Achievements</div><div class="t2"><span id="stripBadges">12</span> badges earned</div></div>
+      </div>
+      <div class="ach-div"></div>
+      <div class="ach-cell">
+        <svg class="flame" viewBox="0 0 24 24"><path fill="#F5821F" d="M12 2s1 3.2-1.5 5.7C8.6 9.6 7 11 7 14a5 5 0 0 0 10 0c0-1.6-.6-2.9-1.4-4-.3 1-.9 1.8-1.7 2.2.4-2.7-.5-6.6-1.9-8.2z"/><path fill="#FCC57C" d="M12 20.4A3.4 3.4 0 0 1 8.6 17c0-1.8 1.4-2.8 2.2-4 .5.8 2.6 1.8 2.6 4a3.4 3.4 0 0 1-1.4 3.4z"/></svg>
+        <div><div class="t1" id="stripStreakT1">6-day streak</div><div class="t2" id="stripStreakT2">sync today to keep it going</div></div>
+      </div>
+      <div class="ach-div"></div>
+      <div class="ach-next">
+        <div class="t1" id="stripNextT1">Next up: Step Collector &middot; Silver</div>
+        <div class="bar-row">
+          <div class="bar" style="flex:1"><i id="stripBar" style="width:82%"></i></div>
+          <span class="pct" id="stripPct">82%</span>
+          <button class="btn" onclick="go('hub')">View all</button>
+        </div>
+        <div class="meta" id="stripMeta">412,300 / 500,000 lifetime steps &middot; +100 Hc</div>
+      </div>
+    </div>
+
+    <!-- Range of wellness solutions (unchanged) -->
+    <div class="section-h">
+      <h2>Range Of Wellness Solutions</h2>
+      <div class="pager">
+        <button aria-label="previous"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <button aria-label="next"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+    <div class="well-row">
+      <div class="wcard" onclick="deadEnd('Lab Tests')"><div class="wicon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M8 3v6l-3.4 8A2 2 0 0 0 6.5 20h4"/><path d="M13 3v5"/><path d="M6.5 3h9"/><circle cx="16.5" cy="15.5" r="4.5"/><path d="M19.8 18.8L23 22"/></svg></div><span>Lab Tests</span></div>
+      <div class="wcard" onclick="deadEnd('Doctor Consult')"><div class="wicon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><circle cx="12" cy="7" r="3.4"/><path d="M5 21v-2.5A5.5 5.5 0 0 1 10.5 13h3A5.5 5.5 0 0 1 19 18.5V21"/><path d="M12 13v4M10.3 15.2h3.4"/></svg></div><span>Doctor Consult</span></div>
+      <div class="wcard" onclick="deadEnd('Your Dost')"><div class="wicon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M9.5 4a4.5 4.5 0 1 0 0 9"/><path d="M14.5 4a4.5 4.5 0 1 1 0 9"/><path d="M6 20c0-3 2.5-4.5 6-4.5S18 17 18 20"/></svg></div><span>Your Dost</span></div>
+      <div class="wcard" onclick="deadEnd('Gym')"><div class="wicon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><circle cx="13.5" cy="5" r="1.8"/><path d="M8 21l3-6 1.5-4.5L10 12l-3 1 2-4 4.5-2 3 3 3 1.5"/><path d="M13 15l3 6"/><path d="M3 21h18"/></svg></div><span>Gym</span></div>
+      <div class="wcard" onclick="deadEnd('Pharmacy')"><div class="wicon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="3" y="8" width="9" height="13" rx="1.5"/><path d="M5.5 8V5.5h4V8M12 21h8.5V11H16"/><path d="M16.8 3.2l3.5 3.5M15.5 6.5l3-3"/><path d="M6 13h3M7.5 11.5v3"/></svg></div><span>Mental Wellness</span></div>
+      <div class="wcard" onclick="deadEnd('In-clinic Consults')"><div class="wicon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="4" y="7" width="16" height="14" rx="1.5"/><path d="M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/><path d="M12 11v5M9.5 13.5h5"/></svg></div><span>In-clinic Consults</span></div>
+    </div>
+
+    <!-- Let's Get Moving (home teaser, unchanged) -->
+    <div class="moving">
+      <div class="mv-left">
+        <h3>Let&rsquo;s Get Moving <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3E9B4F" stroke-width="2.4"><path d="M4 15c4-1 6-3 8-8M9 20c4-1 7-4 9-10"/></svg></h3>
+        <div class="sub">Every step counts. Keep going!</div>
+        <div class="mv-scene">
+          <svg viewBox="0 0 900 290" preserveAspectRatio="xMidYMax slice">
+            <rect x="70" y="60" width="34" height="120" fill="#DFE6ED"/><rect x="120" y="35" width="30" height="145" fill="#D4DDE7"/><rect x="330" y="50" width="40" height="130" fill="#DFE6ED"/><rect x="390" y="25" width="28" height="155" fill="#D4DDE7"/><rect x="430" y="60" width="34" height="120" fill="#DFE6ED"/><rect x="560" y="40" width="34" height="140" fill="#D4DDE7"/><rect x="610" y="65" width="42" height="115" fill="#DFE6ED"/><rect x="740" y="30" width="30" height="150" fill="#D4DDE7"/><rect x="782" y="55" width="34" height="125" fill="#DFE6ED"/>
+            <ellipse cx="180" cy="235" rx="260" ry="70" fill="#CFE3C8"/><ellipse cx="620" cy="245" rx="320" ry="80" fill="#C4DCBC"/><ellipse cx="900" cy="230" rx="240" ry="70" fill="#CFE3C8"/>
+            <g><rect x="196" y="140" width="8" height="34" fill="#8A6B4F"/><circle cx="200" cy="122" r="26" fill="#7FB069"/></g>
+            <g><rect x="676" y="130" width="8" height="36" fill="#8A6B4F"/><circle cx="680" cy="110" r="30" fill="#6FA45B"/></g>
+            <g><rect x="838" y="150" width="7" height="28" fill="#8A6B4F"/><circle cx="841" cy="134" r="22" fill="#7FB069"/></g>
+            <rect x="0" y="252" width="900" height="38" fill="#DFDFE3"/>
+            <path d="M0 252h900" stroke="#C8C8CE" stroke-width="2" stroke-dasharray="14 10"/>
+            <g transform="translate(96,196)">
+              <circle cx="22" cy="8" r="9" fill="#2E3947"/>
+              <path d="M22 17c-4 8-10 10-14 22M22 17c5 7 12 8 13 20M22 17l-2 18-8 18M20 35l10 16" stroke="#D9542B" stroke-width="7" stroke-linecap="round" fill="none"/>
+            </g>
+            <circle cx="60" cy="271" r="4" fill="#fff"/><circle cx="450" cy="271" r="4" fill="#fff"/><circle cx="845" cy="271" r="4" fill="#fff"/>
+          </svg>
+          <div class="steps-chip"><svg width="14" height="14" viewBox="0 0 24 24"><path fill="#2E3947" d="M9 3c2 0 3 1.7 3 3.8S10.8 11 9.2 11 6 9.5 6 7.4 7 3 9 3zm-1.5 9.5h4.1c.5 2.3-.4 4.5-2 4.5s-2.6-2.2-2.1-4.5zM16.8 6c1.7 0 2.7 1.4 2.7 3.2s-1 3.4-2.4 3.4-2.7-1.3-2.7-3.1S15.1 6 16.8 6z"/></svg><span id="todayStepsChip">5,420</span></div>
+          <div class="mk" style="left:16px">&#128099; 0</div>
+          <div class="mk" style="left:48%">&#128099; 4k</div>
+          <div class="mk" style="right:16px">&#128099; 8k</div>
+        </div>
+      </div>
+      <div class="mv-right">
+        <div class="sync-pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 8a8 8 0 0 0-14.6-2M4 16a8 8 0 0 0 14.6 2"/><path d="M4 3v4h4M20 21v-4h-4"/></svg> <span id="syncLabel">Last sync: 11 hours ago</span></div>
+        <div class="goal-card">
+          <div class="goal-ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.2" fill="#F5821F"/></svg></div>
+          <div><div class="goal-num">8,000</div><div class="goal-lab">Daily Step Goal</div></div>
+        </div>
+        <div class="cta-card" onclick="go('challenges')">
+          <svg width="40" height="40" viewBox="0 0 24 24"><path fill="#D6A93F" d="M6 3h12v2h3v3c0 2.5-2 4.4-4.4 4.9A6 6 0 0 1 13 16.9V19h3v2H8v-2h3v-2.1a6 6 0 0 1-3.6-3.9C5 12.4 3 10.5 3 8V5h3V3zm-1 4v1c0 1.3.9 2.4 2.1 2.8A9 9 0 0 1 7 8V7H5zm14 0h-2v1c0 1-.04 1.9-.13 2.8A3 3 0 0 0 19 8V7z"/><path fill="#C21E1E" d="M9.2 13.6h5.6l-1 2.6H10z" opacity=".0"/></svg>
+          <div><div class="t1">Ready to move and</div><div class="t2">Start your Challenge!</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CHALLENGES ================= -->
+<section class="screen page-blue" id="scr-challenges">
+  <div class="container">
+    <div class="streak-row">
+      <div style="width:130px"></div>
+      <div class="streak-pill" onclick="go('badge','on-a-roll')" title="Open streak details">
+        <svg class="flame" viewBox="0 0 24 24"><path fill="#F5821F" d="M12 2s1 3.2-1.5 5.7C8.6 9.6 7 11 7 14a5 5 0 0 0 10 0c0-1.6-.6-2.9-1.4-4-.3 1-.9 1.8-1.7 2.2.4-2.7-.5-6.6-1.9-8.2z"/><path fill="#FCC57C" d="M12 20.4A3.4 3.4 0 0 1 8.6 17c0-1.8 1.4-2.8 2.2-4 .5.8 2.6 1.8 2.6 4a3.4 3.4 0 0 1-1.4 3.4z"/></svg>
+        <b id="streakPillNum">6</b> Days Streak <span>&#128525;</span>
+      </div>
+      <div class="date-pill">22 Jul&rsquo;26 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16202C" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg></div>
+    </div>
+
+    <div class="moving" style="margin-top:18px">
+      <div class="mv-left">
+        <h3>Let&rsquo;s Get Moving <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3E9B4F" stroke-width="2.4"><path d="M4 15c4-1 6-3 8-8M9 20c4-1 7-4 9-10"/></svg></h3>
+        <div class="sub">Every step counts. Keep going!</div>
+        <div class="mv-scene">
+          <svg viewBox="0 0 900 290" preserveAspectRatio="xMidYMax slice">
+            <rect x="70" y="60" width="34" height="120" fill="#DFE6ED"/><rect x="120" y="35" width="30" height="145" fill="#D4DDE7"/><rect x="330" y="50" width="40" height="130" fill="#DFE6ED"/><rect x="390" y="25" width="28" height="155" fill="#D4DDE7"/><rect x="430" y="60" width="34" height="120" fill="#DFE6ED"/><rect x="560" y="40" width="34" height="140" fill="#D4DDE7"/><rect x="610" y="65" width="42" height="115" fill="#DFE6ED"/><rect x="740" y="30" width="30" height="150" fill="#D4DDE7"/><rect x="782" y="55" width="34" height="125" fill="#DFE6ED"/>
+            <ellipse cx="180" cy="235" rx="260" ry="70" fill="#CFE3C8"/><ellipse cx="620" cy="245" rx="320" ry="80" fill="#C4DCBC"/><ellipse cx="900" cy="230" rx="240" ry="70" fill="#CFE3C8"/>
+            <g><rect x="196" y="140" width="8" height="34" fill="#8A6B4F"/><circle cx="200" cy="122" r="26" fill="#7FB069"/></g>
+            <g><rect x="676" y="130" width="8" height="36" fill="#8A6B4F"/><circle cx="680" cy="110" r="30" fill="#6FA45B"/></g>
+            <g><rect x="838" y="150" width="7" height="28" fill="#8A6B4F"/><circle cx="841" cy="134" r="22" fill="#7FB069"/></g>
+            <rect x="0" y="252" width="900" height="38" fill="#DFDFE3"/>
+            <path d="M0 252h900" stroke="#C8C8CE" stroke-width="2" stroke-dasharray="14 10"/>
+            <g transform="translate(96,196)">
+              <circle cx="22" cy="8" r="9" fill="#2E3947"/>
+              <path d="M22 17c-4 8-10 10-14 22M22 17c5 7 12 8 13 20M22 17l-2 18-8 18M20 35l10 16" stroke="#D9542B" stroke-width="7" stroke-linecap="round" fill="none"/>
+            </g>
+            <circle cx="60" cy="271" r="4" fill="#fff"/><circle cx="450" cy="271" r="4" fill="#fff"/><circle cx="845" cy="271" r="4" fill="#fff"/>
+          </svg>
+          <div class="steps-chip"><svg width="14" height="14" viewBox="0 0 24 24"><path fill="#2E3947" d="M9 3c2 0 3 1.7 3 3.8S10.8 11 9.2 11 6 9.5 6 7.4 7 3 9 3zm-1.5 9.5h4.1c.5 2.3-.4 4.5-2 4.5s-2.6-2.2-2.1-4.5zM16.8 6c1.7 0 2.7 1.4 2.7 3.2s-1 3.4-2.4 3.4-2.7-1.3-2.7-3.1S15.1 6 16.8 6z"/></svg><span class="todaySteps2">5,420</span></div>
+          <div class="mk" style="left:16px">&#128099; 0</div>
+          <div class="mk" style="left:48%">&#128099; 4k</div>
+          <div class="mk" style="right:16px">&#128099; 8k</div>
+        </div>
+      </div>
+      <div class="mv-right">
+        <div class="sync-pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 8a8 8 0 0 0-14.6-2M4 16a8 8 0 0 0 14.6 2"/><path d="M4 3v4h4M20 21v-4h-4"/></svg> <span class="syncLabel2">Last sync: 11 hours ago</span></div>
+        <div class="goal-card">
+          <div class="goal-ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.2" fill="#F5821F"/></svg></div>
+          <div><div class="goal-num">8,000</div><div class="goal-lab">Daily Step Goal</div></div>
+        </div>
+        <div class="cta-card">
+          <svg width="40" height="40" viewBox="0 0 24 24"><path fill="#D6A93F" d="M6 3h12v2h3v3c0 2.5-2 4.4-4.4 4.9A6 6 0 0 1 13 16.9V19h3v2H8v-2h3v-2.1a6 6 0 0 1-3.6-3.9C5 12.4 3 10.5 3 8V5h3V3zm-1 4v1c0 1.3.9 2.4 2.1 2.8A9 9 0 0 1 7 8V7H5zm14 0h-2v1c0 1-.04 1.9-.13 2.8A3 3 0 0 0 19 8V7z"/></svg>
+          <div><div class="t1">Ready to move and</div><div class="t2">Start your Challenge!</div></div>
+        </div>
+        <button class="btn-yellow" onclick="go('chal')"><svg width="18" height="18" viewBox="0 0 24 24" fill="#3A2E10"><path d="M14 3c3.5.4 6.6 3.5 7 7l-4.2 1A9 9 0 0 0 13 7.2zM12.4 8.3a7.6 7.6 0 0 1 3.3 3.3L8.5 18.8l-3.3-3.3zM4.3 16.8l2.9 2.9L3 21z"/></svg> Start a Challenge</button>
+      </div>
+    </div>
+
+    <div class="zone-h">
+      <h2>Challenge Zone</h2>
+      <span class="see" onclick="toast('Full challenge catalogue is outside this prototype')">See all</span>
+    </div>
+    <div class="zone-row">
+      <div class="chal-card" data-prd="6.1 Badges on the line" data-note="Challenge cards state their badge stakes up front: what completing pays, and the Serial Competitor career rung this one would fill. SPL stays badge-free by design." onclick="go('chal')">
+        <div class="chal-art art-jss">
+          <div class="jss-trophy"><svg width="86" height="86" viewBox="0 0 24 24"><path fill="#D6A93F" d="M6 3h12v2h3v3c0 2.5-2 4.4-4.4 4.9A6 6 0 0 1 13 16.9V19h3v2H8v-2h3v-2.1a6 6 0 0 1-3.6-3.9C5 12.4 3 10.5 3 8V5h3V3zm-1 4v1c0 1.3.9 2.4 2.1 2.8A9 9 0 0 1 7 8V7H5zm14 0h-2v1c0 1-.04 1.9-.13 2.8A3 3 0 0 0 19 8V7z"/></svg></div>
+        </div>
+        <div class="chal-body">
+          <div class="name">July Step Sprint</div>
+          <div class="meta">10 days &middot; starts Monday &middot; 1,240 colleagues joined</div>
+          <div class="badge-chip-row">
+            <span class="b-chip"><svg class="mini-star" viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" fill="#4A76C9"/><path d="M26 13l3.8 8 8.7.9-6.5 5.9 1.9 8.6-7.9-4.5-7.9 4.5 1.9-8.6-6.5-5.9 8.7-.9z" fill="#fff"/></svg> Finisher +100 Hc</span>
+            <span class="b-chip">Serial Competitor: 2 of 3</span>
+          </div>
+        </div>
+      </div>
+      <div class="chal-card" onclick="toast('Steps Premier League is excluded from badge earning by design')">
+        <div class="chal-art art-spl">
+          <div class="spl-title">Steps Premier<br>League 2026</div>
+          <div class="spl-date">6<sup>th</sup> to 10<sup>th</sup> July</div>
+          <svg style="position:absolute;right:14px;top:10px" width="52" height="110" viewBox="0 0 52 110"><rect x="24" y="26" width="4" height="84" fill="#2E5FA8"/><g fill="#8FB4E8"><circle cx="14" cy="12" r="4"/><circle cx="26" cy="8" r="4"/><circle cx="38" cy="12" r="4"/><circle cx="20" cy="20" r="4"/><circle cx="32" cy="20" r="4"/></g></svg>
+          <svg style="position:absolute;left:12px;bottom:8px" width="220" height="46" viewBox="0 0 220 46"><g stroke="#D8E4F4" stroke-width="3" stroke-linecap="round"><path d="M18 12v14M12 40h12M18 26l-7 12M18 26l8 12"/><circle cx="18" cy="7" r="4" fill="#7EA4D8" stroke="none"/><path d="M62 10v13M56 38l7-13 8 13M62 23l9-8" /><circle cx="62" cy="5" r="4" fill="#E88AA0" stroke="none"/><path d="M116 10v13M110 38l7-13 8 13M116 23l10-6"/><circle cx="116" cy="5" r="4" fill="#7EA4D8" stroke="none"/><path d="M170 12v14M164 40h12M170 26l-7 12M170 26l8 12"/><circle cx="170" cy="7" r="4" fill="#8FBF8F" stroke="none"/></g></svg>
+        </div>
+        <div class="chal-body">
+          <div class="name">Steps Premier League 2026</div>
+          <div class="meta">6th to 10th July &middot; company league</div>
+          <div class="badge-chip-row"><span class="b-chip mut">SPL &middot; badge-earning excluded by design</span></div>
+        </div>
+      </div>
+      <div class="chal-card" onclick="toast('Open a challenge from the demo: July Step Sprint carries the badge flow')">
+        <div class="chal-art art-rbl">
+          <div class="rbl-band"><div class="t1">RUN BEYOND LIMITS</div><div class="t2">5-Days Virtual Marathon Challenge</div></div>
+          <svg style="position:absolute;left:18px;bottom:6px" width="90" height="64" viewBox="0 0 90 64"><g stroke="#B23A2A" stroke-width="6" stroke-linecap="round" fill="none"><path d="M40 14v16M34 52l8-18 10 16M42 26l14-8"/></g><circle cx="40" cy="8" r="6" fill="#3A2530"/></svg>
+        </div>
+        <div class="chal-body">
+          <div class="name">Run Beyond Limits</div>
+          <div class="meta">5-days virtual marathon</div>
+          <div class="badge-chip-row"><span class="b-chip">Finisher +100 Hc</span><span class="b-chip">Podium +150 Hc</span></div>
+        </div>
+      </div>
+      <div class="chal-card" onclick="toast('Open a challenge from the demo: July Step Sprint carries the badge flow')">
+        <div class="chal-art art-vs"><div class="vs-swoosh"></div><div class="vs-mark">VS</div></div>
+        <div class="chal-body">
+          <div class="name">Step up</div>
+          <div class="meta">team vs team &middot; weekly</div>
+          <div class="badge-chip-row"><span class="b-chip">Finisher +100 Hc</span><span class="b-chip">Champion +250 Hc</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CHALLENGE DETAIL (6.1 / 6.2 / 6.3) ================= -->
+<section class="screen page-blue" id="scr-chal">
+  <div class="container">
+    <div class="crumb"><span class="lk" onclick="go('challenges')">Challenges</span> &rsaquo; <b>July Step Sprint</b></div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:4px">
+      <h1 class="page" id="cdTitle">July Step Sprint</h1>
+      <div>
+        <div class="stage-lab">Prototype stage</div>
+        <div class="stage-tabs">
+          <button id="st-before" onclick="setStage('before')">6.1 Before joining</button>
+          <button id="st-during" onclick="setStage('during')">6.2 Day 4 of 10</button>
+          <button id="st-done" onclick="setStage('done')">6.3 Finished</button>
+        </div>
+      </div>
+    </div>
+    <div class="cd-wrap">
+      <div id="cdMain"></div>
+      <div class="panel" id="cdSide"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HUB (5.6) ================= -->
+<section class="screen" id="scr-hub">
+  <div class="container" data-prd-page>
+    <div class="crumb"><span class="lk" onclick="go('home')">Home</span> &rsaquo; <b>Badges &amp; Achievements</b></div>
+    <h1 class="page">Badges &amp; Achievements</h1>
+    <div class="stat-row" data-prd="5.6 The hub" data-note="Three numbers set the frame: collection size, what badges have paid, and the streak on the line today. Everything below is filterable by the catalogue's categories.">
+      <div class="stat"><div class="n" id="statBadges">12</div><div class="l">badges earned</div></div>
+      <div class="stat"><div class="n" id="statHc">1,150</div><div class="l">Habit coins from badges</div></div>
+      <div class="stat"><div class="n"><span id="statStreak">6</span> days</div><div class="l">current streak</div></div>
+    </div>
+    <div class="hub-sub">Almost there</div>
+    <div class="almost-row" id="almostRow"></div>
+    <div class="chip-row" id="chipRow"></div>
+    <div class="badge-grid" id="badgeGrid"></div>
+  </div>
+</section>
+
+<!-- ================= BADGE DETAIL (5.7) ================= -->
+<section class="screen" id="scr-badge">
+  <div class="container">
+    <div class="crumb" style="padding-top:26px"><span class="lk" onclick="go('hub')" style="color:var(--blue);font-weight:500">&lsaquo; Back to Badges &amp; Achievements</span></div>
+    <div id="bdBody"></div>
+  </div>
+</section>
+
+<!-- ================= UNLOCK POPUP (5.5) ================= -->
+<div class="scrim" id="uScrim">
+  <div class="modal" data-prd="5.5 Unlock popup" data-note="One celebration popup; multiple unlocks stack as swipeable pages so back-to-back wins never queue separate modals. Reward confirmation and the next rung sit inside the same moment.">
+    <div class="confetti" id="uConf"></div>
+    <button class="x" onclick="closeUnlock()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="u-arrow l" id="uPrev" onclick="uNav(-1)" aria-label="Previous badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <button class="u-arrow r" id="uNext" onclick="uNav(1)" aria-label="Next badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></button>
+    <div class="u-body" id="uPage"></div>
+    <div class="u-btns">
+      <button class="btn" onclick="toast('Result card posted to the team feed &mdash; privacy-safe: badge and rank only, never health data')">Share</button>
+      <button class="btn outline" onclick="closeUnlock();go('hub')">View my badges</button>
+    </div>
+    <div class="u-dots" id="uDots"></div>
+  </div>
+</div>
+
+<!-- ================= STREAK SAVER MODAL ================= -->
+<div class="scrim" id="sScrim">
+  <div class="modal" style="max-width:480px" id="sBody"></div>
+</div>
+
+<!-- streak-at-risk nudge -->
+<div class="nudge" id="nudge">
+  <svg class="flame" style="flex:none" viewBox="0 0 24 24"><path fill="#F5821F" d="M12 2s1 3.2-1.5 5.7C8.6 9.6 7 11 7 14a5 5 0 0 0 10 0c0-1.6-.6-2.9-1.4-4-.3 1-.9 1.8-1.7 2.2.4-2.7-.5-6.6-1.9-8.2z"/><path fill="#FCC57C" d="M12 20.4A3.4 3.4 0 0 1 8.6 17c0-1.8 1.4-2.8 2.2-4 .5.8 2.6 1.8 2.6 4a3.4 3.4 0 0 1-1.4 3.4z"/></svg>
+  <div>
+    <div class="t1">7:00 PM &mdash; your 6-day streak is at risk</div>
+    <div class="t2">2,580 steps to go before midnight. If you miss, your Streak Saver auto-applies (1 left this month).</div>
+    <div class="acts"><button class="go" onclick="hideNudge();syncSteps()">Sync now</button><button class="dis" onclick="hideNudge()">Dismiss</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="bot" title="Your Dost" onclick="toast('Chat assistant is outside this prototype')">
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><rect x="5" y="7" width="14" height="11" rx="3.5"/><circle cx="9.5" cy="12" r="1.2" fill="#fff" stroke="none"/><circle cx="14.5" cy="12" r="1.2" fill="#fff" stroke="none"/><path d="M12 7V4.5M10 20.5h4"/></svg>
+</div>
+
+<!-- ================= DEMO PANEL ================= -->
+<div class="demo" id="demo">
+  <div class="dhead" onclick="document.getElementById('demo').classList.toggle('min')">
+    <span class="dot"></span><span class="t">PROTOTYPE CONTROLS</span>
+    <span class="tog"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M6 15l6-6 6 6"/></svg></span>
+  </div>
+  <div class="dbody">
+    <div class="dsw" id="annSw" onclick="toggleAnn(event)">Show PRD annotations <span class="track"><i></i></span></div>
+    <button class="dbtn" id="db-sync" onclick="syncSteps()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2A3644" stroke-width="2"><path d="M20 8a8 8 0 0 0-14.6-2M4 16a8 8 0 0 0 14.6 2"/><path d="M4 3v4h4M20 21v-4h-4"/></svg> Sync today&rsquo;s steps <small>day 7 &rarr; unlock</small></button>
+    <button class="dbtn" id="db-500k" onclick="reach500k()"><svg width="15" height="15" viewBox="0 0 24 24"><path fill="#2A3644" d="M9 3c2 0 3 1.7 3 3.8S10.8 11 9.2 11 6 9.5 6 7.4 7 3 9 3zm-1.5 9.5h4.1c.5 2.3-.4 4.5-2 4.5s-2.6-2.2-2.1-4.5zM16.8 6c1.7 0 2.7 1.4 2.7 3.2s-1 3.4-2.4 3.4-2.7-1.3-2.7-3.1S15.1 6 16.8 6z"/></svg> Cross 500K lifetime steps <small>Silver</small></button>
+    <button class="dbtn" onclick="showNudge()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2A3644" stroke-width="2"><path d="M18 9a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10.5 20a1.8 1.8 0 0 0 3 0"/></svg> 7:00 PM streak-at-risk nudge</button>
+    <button class="dbtn" id="db-miss" onclick="missDay()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2A3644" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg> Miss a day <small>edge case</small></button>
+    <button class="dbtn" id="db-finish" onclick="go('chal');setStage('done')"><svg width="15" height="15" viewBox="0 0 24 24"><path fill="#2A3644" d="M6 3h12v2h3v3c0 2.5-2 4.4-4.4 4.9A6 6 0 0 1 13 16.9V19h3v2H8v-2h3v-2.1a6 6 0 0 1-3.6-3.9C5 12.4 3 10.5 3 8V5h3V3z"/></svg> Finish July Step Sprint <small>2 badges</small></button>
+    <button class="dreset" onclick="resetDemo()">Reset demo state</button>
+  </div>
+</div>
+
+<script>
+/* ================= STATE ================= */
+function initState(){return{
+  badges:12, hc:1150, streak:6, best:6, savers:1, saverUsed:false, streakLost:false,
+  todaySteps:5420, goal:8000, lifetime:412300, synced:false,
+  scSilver:false, oarSilver:false, hubSeen:false,
+  stage:'before', finisherCount:2, doneCelebrated:false, filter:'All'
+};}
+let S = initState();
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString('en-US');
+
+/* ================= SVG HELPERS ================= */
+const TIER = {B:'#B0705F',S:'#98A4B4',G:'#D6A93F',P:'#C7CEDA'};
+function starArt(color,size,ring){
+  return `<div class="badge-ic" style="width:${size}px;height:${size}px">${ring?'<span class="ring"></span>':''}
+  <svg width="${size}" height="${size}" viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" fill="${color}"/><circle cx="26" cy="26" r="24" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2.6" stroke-dasharray="4 5"/><path d="M26 12.5l4 8.4 9.2 1-6.9 6.2 2 9.1-8.3-4.8-8.3 4.8 2-9.1-6.9-6.2 9.2-1z" fill="#fff"/></svg></div>`;}
+function lockArt(size){
+  return `<div class="badge-ic" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" fill="#E3E7ED"/><rect x="17" y="23" width="18" height="14" rx="3" fill="#9AA6B5"/><path d="M20.5 23v-4a5.5 5.5 0 0 1 11 0v4" fill="none" stroke="#9AA6B5" stroke-width="3.4"/></svg></div>`;}
+function progArt(size){
+  return `<div class="badge-ic" style="width:${size}px;height:${size}px"><span class="ring"></span><svg width="${size}" height="${size}" viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" fill="#F5EDDF"/><path d="M26 12.5l4 8.4 9.2 1-6.9 6.2 2 9.1-8.3-4.8-8.3 4.8 2-9.1-6.9-6.2 9.2-1z" fill="#D6A93F"/></svg></div>`;}
+const ckSm = c=>`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="${c||'#2E8B33'}" stroke-width="3"><path d="M4.5 12.5l5 5L19.5 7"/></svg>`;
+const lkSm = `<svg width="15" height="15" viewBox="0 0 24 24" fill="#8A96A6"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="#8A96A6" stroke-width="2.2"/></svg>`;
+const hcSm = n=>`<span class="hc-inline"><span class="hc-coin" style="width:17px;height:17px;font-size:7.5px">Hc</span>+${n} Hc</span>`;
+
+/* ================= CATALOGUE (from Badge Master · Phase 1) ================= */
+const FAM = {
+ 'welcome-aboard':{name:'Welcome Aboard',cat:'All',type:'One-time',crit:'Complete your Habit Health profile',hc:'50',obj:'An instant early win, moments after signup.'},
+ 'connected-counting':{name:'Connected & Counting',cat:'All',type:'One-time',crit:'Connect Google Fit, Apple Health or Health Connect',hc:'100',obj:'The single biggest activation step — from here, every step counts.'},
+ 'first-steps':{name:'First Steps',cat:'Steps',type:'One-time',crit:'First step sync recorded',hc:'50',obj:'Confirms the tracking pipeline works end to end.'},
+ '10k-day':{name:'10K Day',cat:'Steps',type:'One-time',crit:'First calendar day above 10,000 steps',hc:'100',obj:'A first taste of a big day.'},
+ 'step-collector':{name:'Step Collector',cat:'Steps',type:'Progressive · 4 tiers',crit:'Lifetime steps: 100K / 500K / 1M / 5M',hc:'50–500',obj:'Lifetime counters never reset — long-term retention.'},
+ 'peak-performer':{name:'Peak Performer',cat:'Steps',type:'Progressive · 4 tiers',crit:'Best single day: 12,500 / 15,000 / 20,000 / 25,000 steps',hc:'50–500',obj:'Rewards intensity, not just consistency.'},
+ 'sync-champion':{name:'Sync Champion',cat:'Steps',type:'Repeatable',crit:'Sync your tracker 7 days in a row',hc:'50 per run',obj:'Protects the data habit the whole system depends on.'},
+ 'distance-legend':{name:'Distance Legend',cat:'Steps',type:'Progressive · 4 tiers',crit:'Outdoor GPS distance: 42 / 400 / 700 / 1,050 km',hc:'50–500',obj:'A marathon, then many.'},
+ 'on-a-roll':{name:'On a Roll',cat:'Streaks',type:'Progressive · 4 tiers',crit:'Consecutive days at your step goal: 3 / 7 / 14 / 30',hc:'50–500',obj:'The daily-return engine.'},
+ 'consistency-legend':{name:'Consistency Legend',cat:'Streaks',type:'Progressive · 4 tiers',crit:'Streak length: 60 / 180 / 365 / 730 days',hc:'100–500',obj:'Where On a Roll goes after day 30.'},
+ 'challenger':{name:'Challenger',cat:'Challenges',type:'One-time',crit:'Join your first challenge',hc:'50',obj:'Removes the fear of entering.'},
+ 'finisher':{name:'Finisher',cat:'Challenges',type:'Repeatable · counter',crit:'Complete a challenge (100% of goal days)',hc:'100 per completion',obj:'Completion pays even far from the podium.'},
+ 'podium':{name:'Podium',cat:'Challenges',type:'Repeatable',crit:'Finish a challenge in the top 3',hc:'150',obj:'For the competitive edge.'},
+ 'champion':{name:'Champion',cat:'Challenges',type:'Repeatable',crit:'Finish a challenge at rank 1',hc:'250',obj:'The crown.'},
+ 'serial-competitor':{name:'Serial Competitor',cat:'Challenges',type:'Progressive · 4 tiers',crit:'Career completions: 3 / 5 / 10 / 25',hc:'50–500',obj:'Turns single wins into a career.'},
+ 'health-first':{name:'Health First',cat:'Health',type:'Repeatable · rolling year',crit:'Book your Annual Health Check',hc:'100 / yr',obj:'The booking nudge, every year.'},
+ 'checkup-complete':{name:'Check-Up Complete',cat:'Health',type:'Repeatable · rolling year',crit:'Attend your Annual Health Check',hc:'500 / yr',obj:'The top single reward in the system — attendance is the point.'},
+ 'doctors-orders':{name:"Doctor's Orders",cat:'Health',type:'One-time',crit:'Book your first consultation',hc:'100',obj:'First use of care, rewarded.'},
+ 'smart-starter':{name:'Smart Starter',cat:'Health',type:'One-time',crit:'Open your Smart Report',hc:'50',obj:'Reports get read, not just generated.'},
+ 'curious-mind':{name:'Curious Mind',cat:'Learning',type:'One-time',crit:'Read your first article or watch your first video',hc:'50',obj:'Opens the content track.'},
+ 'knowledge-seeker':{name:'Knowledge Seeker',cat:'Learning',type:'Progressive · 3 tiers',crit:'Content items: 10 / 25 / 50',hc:'50–250',obj:'From one article to a habit.'},
+ 'front-row':{name:'Front Row',cat:'Learning',type:'One-time',crit:'Attend a live webinar',hc:'50',obj:'Live beats recorded.'},
+ 'regular':{name:'Regular',cat:'Learning',type:'Progressive · 3 tiers',crit:'Webinars attended: 3 / 5 / 10',hc:'50–250',obj:'The twin track after Front Row.'},
+ 'moment-maker':{name:'Moment Maker',cat:'Community',type:'One-time · Phase 2',crit:'Make your first community post',hc:'50',obj:'Reserved for the community launch.'},
+ 'explorer':{name:'Explorer',cat:'All',type:'One-time',crit:'Open 5 different modules',hc:'100',obj:'Cross-sells the platform beyond steps.'}
+};
+
+/* ================= INSTANCE LIST (hub grid) ================= */
+function instances(){
+  const I=[];
+  const scPct = Math.min(99,Math.round(S.lifetime/500000*100));
+  I.push({f:'first-steps',t:null,st:'e',sub:'earned · Feb 2'});
+  I.push({f:'step-collector',t:'B',st:'e',sub:'earned · 12 Mar',tn:'Bronze'});
+  I.push(S.scSilver?{f:'step-collector',t:'S',st:'e',sub:'earned · today',tn:'Silver'}
+                   :{f:'step-collector',t:'S',st:'p',pct:scPct,pm:`${fmt(S.lifetime)} / 500,000 lifetime steps`,tn:'Silver'});
+  I.push({f:'on-a-roll',t:'P',st:'l',sub:`locked · 30-day streak (best ${S.best})`,tn:'Platinum'});
+  I.push({f:'finisher',t:null,st:'e',sub:S.finisherCount>2?'earned · today':'earned · May 20',count:S.finisherCount});
+  I.push({f:'health-first',t:null,st:'e',sub:'earned · Apr 8 · resets yearly'});
+  I.push({f:'regular',t:'S',st:'p',pct:60,pm:'3 of 5 webinars',tn:'Silver'});
+  I.push({f:'moment-maker',t:null,st:'l',sub:'locked · make 1 post'});
+  I.push({f:'welcome-aboard',t:null,st:'e',sub:'earned · Feb 2'});
+  I.push({f:'connected-counting',t:null,st:'e',sub:'earned · Feb 2'});
+  I.push({f:'10k-day',t:null,st:'e',sub:'earned · Feb 12'});
+  I.push({f:'peak-performer',t:'B',st:'e',sub:'earned · Feb 12',tn:'Bronze'});
+  I.push({f:'peak-performer',t:'S',st:'p',pct:87,pm:'best day 13,100 / 15,000',tn:'Silver'});
+  I.push({f:'on-a-roll',t:'B',st:'e',sub:'earned · Feb 5',tn:'Bronze'});
+  I.push(S.oarSilver?{f:'on-a-roll',t:'S',st:'e',sub:'earned · today',tn:'Silver'}
+                    :{f:'on-a-roll',t:'S',st:'p',pct:Math.round(S.streak/7*100),pm:`day ${S.streak} of 7`,tn:'Silver'});
+  I.push(S.oarSilver?{f:'on-a-roll',t:'G',st:'p',pct:50,pm:'day 7 of 14',tn:'Gold'}
+                    :{f:'on-a-roll',t:'G',st:'l',sub:'locked · unlocks after Silver',tn:'Gold'});
+  I.push({f:'sync-champion',t:null,st:'p',pct:86,pm:'6 of 7 days synced'});
+  I.push({f:'distance-legend',t:'B',st:'p',pct:76,pm:'32 / 42 km outdoors',tn:'Bronze'});
+  I.push({f:'challenger',t:null,st:'e',sub:'earned · Feb 21'});
+  I.push(S.finisherCount>=3?{f:'serial-competitor',t:'B',st:'e',sub:'earned · today',tn:'Bronze'}
+                           :{f:'serial-competitor',t:'B',st:'p',pct:67,pm:`${S.finisherCount} of 3 challenges completed`,tn:'Bronze'});
+  I.push({f:'podium',t:null,st:'l',sub:'locked · finish top 3 · +150 Hc'});
+  I.push({f:'champion',t:null,st:'l',sub:'locked · rank 1 · +250 Hc'});
+  I.push({f:'checkup-complete',t:null,st:'p',pct:50,pm:'AHC booked — attend to unlock · +500 Hc'});
+  I.push({f:'doctors-orders',t:null,st:'l',sub:'locked · book a consult · +100 Hc'});
+  I.push({f:'smart-starter',t:null,st:'l',sub:'locked · open your Smart Report · +50 Hc'});
+  I.push({f:'front-row',t:null,st:'e',sub:'earned · Jun 12'});
+  I.push({f:'curious-mind',t:null,st:'l',sub:'locked · read 1 article · +50 Hc'});
+  I.push({f:'knowledge-seeker',t:'B',st:'l',sub:'locked · 10 content items · +50 Hc',tn:'Bronze'});
+  I.push({f:'consistency-legend',t:null,st:'l',sub:'locked · 60-day streak'});
+  I.push({f:'explorer',t:null,st:'l',sub:'locked · open 5 modules · +100 Hc'});
+  return I;
+}
+
+/* ================= RENDER: hub ================= */
+const CHIPS=['All','Steps','Streaks','Challenges','Health','Learning','Community'];
+function renderChips(){
+  $('chipRow').innerHTML = CHIPS.map(c=>`<button class="chip ${S.filter===c?'on':''}" onclick="S.filter='${c}';renderHub()">${c}</button>`).join('');
+}
+function cardIcon(it){
+  if(it.st==='e') return starArt(it.t?TIER[it.t]:'#4A76C9',52,false);
+  if(it.st==='p') return progArt(52);
+  return lockArt(52);
+}
+function renderHub(){
+  renderChips();
+  const list = instances().filter(it=>S.filter==='All'||FAM[it.f].cat===S.filter);
+  $('badgeGrid').innerHTML = list.map(it=>{
+    const f=FAM[it.f]; const nm = f.name + (it.tn?` · ${it.tn}`:'');
+    let body='';
+    if(it.st==='p') body=`<div class="bar orange"><i style="width:${it.pct}%"></i></div><div class="pmeta">${it.pct}% — ${it.pm}</div>`;
+    else body=`<div class="t2">${it.sub}</div>`;
+    const cnt = it.count&&it.count>1?`<span class="count-chip">×${it.count}</span>`:'';
+    return `<div class="bcard ${it.st==='l'?'locked':''}" onclick="go('badge','${it.f}')">${cardIcon(it)}<div class="body"><div class="t1">${nm} ${cnt}</div>${body}</div></div>`;
+  }).join('');
+  $('statBadges').textContent=S.badges; $('statHc').textContent=fmt(S.hc); $('statStreak').textContent=S.streak;
+}
+function renderAlmost(){
+  const a=[];
+  if(!S.scSilver) a.push({art:progArt(46),t:'Step Collector · Silver',pct:Math.min(99,Math.round(S.lifetime/500000*100)),meta:`${fmt(S.lifetime)} / 500,000 lifetime steps · +100 Hc`,id:'step-collector'});
+  else a.push({art:progArt(46),t:'Step Collector · Gold',pct:50,meta:'500,000 / 1,000,000 lifetime steps · +250 Hc',id:'step-collector'});
+  a.push({art:progArt(46),t:'Regular · Silver',pct:60,meta:'3 of 5 webinars · +100 Hc',id:'regular'});
+  $('almostRow').innerHTML=a.map(x=>`<div class="almost" onclick="go('badge','${x.id}')">${x.art}<div class="body"><div class="t1">${x.t}</div><div class="bar orange"><i style="width:${x.pct}%"></i></div><div class="meta">${x.pct}% — ${x.meta}</div></div></div>`).join('');
+}
+
+/* ================= RENDER: strip + savers + steps ================= */
+function renderStrip(){
+  $('stripBadges').textContent=S.badges;
+  $('stripStreakT1').textContent = S.streak>0?`${S.streak}-day streak`:'Streak reset';
+  $('stripStreakT2').textContent = S.streak===0?'start a new run today':(S.synced?'goal met — see you tomorrow':'sync today to keep it going');
+  if(!S.scSilver){
+    $('stripNextT1').innerHTML='Next up: Step Collector &middot; Silver';
+    const p=Math.min(99,Math.round(S.lifetime/500000*100));
+    $('stripBar').style.width=p+'%'; $('stripPct').textContent=p+'%';
+    $('stripMeta').innerHTML=`${fmt(S.lifetime)} / 500,000 lifetime steps &middot; +100 Hc`;
+  }else{
+    $('stripNextT1').innerHTML='Next up: Step Collector &middot; Gold';
+    $('stripBar').style.width='50%'; $('stripPct').textContent='50%';
+    $('stripMeta').innerHTML='500,000 / 1,000,000 lifetime steps &middot; +250 Hc';
+  }
+}
+function renderSavers(){
+  let t2,foot,dots='',fill=S.streak%7===0&&S.streak>0?7:S.streak%7;
+  if(S.streak===0){t2='Start a new run — On a Roll · Silver at day 7';foot=`Your best (${S.best}) is saved on the ladder. Day 1 starts with today's 8,000.`;fill=0;}
+  else if(S.oarSilver){t2='Day 7 — On a Roll · Gold (+250 Hc) at day 14';foot='Goal met today — streak safe. 1 grace day ready if life happens.';fill=7;}
+  else if(S.saverUsed){t2='Day 6 of 7 — Streak Saver covered yesterday';foot='0 grace days left · next in 24 days. 2,580 more steps today keep the streak alive.';}
+  else{t2='Day 6 of 7 — On a Roll · Silver (+100 Hc) at day 7';foot='2,580 more steps today keep the streak alive.';}
+  for(let i=0;i<7;i++) dots+=`<span class="day ${i<fill?'':'off'}">${i<fill?ckSm('#fff'):''}</span>`;
+  document.querySelectorAll('[data-saver]').forEach(elm=>{
+    elm.innerHTML=`<span class="new-pill">NEW</span>
+      <div class="head"><svg class="flame" style="flex:none" viewBox="0 0 24 24"><path fill="#F5821F" d="M12 2s1 3.2-1.5 5.7C8.6 9.6 7 11 7 14a5 5 0 0 0 10 0c0-1.6-.6-2.9-1.4-4-.3 1-.9 1.8-1.7 2.2.4-2.7-.5-6.6-1.9-8.2z"/><path fill="#FCC57C" d="M12 20.4A3.4 3.4 0 0 1 8.6 17c0-1.8 1.4-2.8 2.2-4 .5.8 2.6 1.8 2.6 4a3.4 3.4 0 0 1-1.4 3.4z"/></svg>
+      <div><div class="t1">Streak Saver</div><div class="t2">${t2}</div></div></div>
+      <div class="days">${dots}</div><div class="foot">${foot}</div>`;
+  });
+}
+function renderSteps(){
+  $('todayStepsChip').textContent=fmt(S.todaySteps);
+  document.querySelectorAll('.todaySteps2').forEach(e=>e.textContent=fmt(S.todaySteps));
+  const lab=S.synced?'Last sync: just now':'Last sync: 11 hours ago';
+  $('syncLabel').textContent=lab;
+  document.querySelectorAll('.syncLabel2').forEach(e=>e.textContent=lab);
+  $('streakPillNum').textContent=S.streak;
+}
+function renderAll(){renderStrip();renderSavers();renderSteps();renderHub();renderAlmost();if(S.screenBadge)renderBadgeDetail(S.screenBadge);renderChallenge();}
+
+/* ================= RENDER: badge detail (5.7) ================= */
+function rung(cls,icon,tname,tsub,stateHtml,hc){
+  return `<div class="rung ${cls}"><div class="who">${icon}<div><div class="tname">${tname}</div><div class="tsub">${tsub}</div></div></div><div class="state">${stateHtml}</div><div class="hc-cell">${hc}</div></div>`;
+}
+function renderBadgeDetail(id){
+  S.screenBadge=id; const f=FAM[id]; const B=$('bdBody'); if(!f){B.innerHTML='';return;}
+  if(id==='step-collector'){
+    const p=Math.min(99,Math.round(S.lifetime/500000*100));
+    B.innerHTML=`
+    <div class="bd-head">${starArt('#4A76C9',86,false)}
+      <div><div class="t1">Step Collector</div>
+      <div class="t2">Lifetime steps synced on Habit Health. Counted on the day you walked them, even if the sync comes in late.</div>
+      <span class="tag">Progressive &middot; 4 tiers</span> <span class="tag">Steps</span></div></div>
+    <div class="ladder" data-prd="5.7 Tier ladder" data-note="One page tells the whole story: what's banked, what's live (orange), and why Platinum stays rare. Lifetime counters never reset.">
+      ${rung('',starArt(TIER.B,52),'Bronze','100,000 lifetime steps',ckSm()+' Earned &middot; 12 Mar 2026',hcSm(50))}
+      ${S.scSilver
+        ?rung('',starArt(TIER.S,52),'Silver','500,000 lifetime steps',ckSm()+' Earned &middot; today',hcSm(100))
+        :rung('now',progArt(52),'Silver','500,000 lifetime steps',`<div style="flex:1;min-width:170px"><div class="bar orange"><i style="width:${p}%"></i></div><div class="tsub" style="margin-top:6px">${p}% — ${fmt(S.lifetime)} / 500,000</div></div>`,hcSm(100))}
+      ${S.scSilver
+        ?rung('now',progArt(52),'Gold','1,000,000 lifetime steps',`<div style="flex:1;min-width:170px"><div class="bar orange"><i style="width:50%"></i></div><div class="tsub" style="margin-top:6px">50% — 500,000 / 1,000,000</div></div>`,hcSm(250))
+        :rung('locked',lockArt(52),'Gold','1,000,000 lifetime steps',lkSm+' Locked — unlocks after Silver',hcSm(250))}
+      ${rung('locked',lockArt(52),'Platinum','5,000,000 lifetime steps',lkSm+' Locked — rare by design',hcSm(500))}
+    </div>`;
+  }
+  else if(id==='on-a-roll'){
+    let dots='';for(let i=0;i<7;i++)dots+=`<span class="day ${i<(S.oarSilver?7:S.streak%7===0&&S.streak>0?7:S.streak%7)?'':'off'}" style="width:34px;height:34px;border-radius:50%;background:${i<(S.oarSilver?7:S.streak)?'#F5821F':'#E8ECF1'};display:flex;align-items:center;justify-content:center">${i<(S.oarSilver?7:S.streak)?ckSm('#fff'):''}</span>`;
+    const sp=Math.round(Math.min(S.streak,7)/7*100);
+    B.innerHTML=`
+    <div class="bd-head">${starArt('#F5821F',86,false)}
+      <div><div class="t1">On a Roll</div>
+      <div class="t2">Consecutive days at your daily step goal (8,000). Current streak: <b>${S.streak}</b> &middot; best: <b>${S.best}</b>.</div>
+      <span class="tag">Progressive &middot; 4 tiers</span> <span class="tag">Streaks</span></div></div>
+    <div class="week-strip">${dots}<span style="color:var(--muted);font-size:14px;margin-left:6px">${S.streak===0?'day 0 — new run starts today':S.oarSilver?'day 7 — Silver banked, Gold at 14':`day ${S.streak} of 7 — 2,580 steps today keep it alive`}</span></div>
+    <div class="ladder">
+      ${rung('',starArt(TIER.B,52),'Bronze','3-day streak',ckSm()+' Earned &middot; Feb 5',hcSm(50))}
+      ${S.oarSilver
+        ?rung('',starArt(TIER.S,52),'Silver','7-day streak',ckSm()+' Earned &middot; today',hcSm(100))
+        :rung('now',progArt(52),'Silver','7-day streak',`<div style="flex:1;min-width:170px"><div class="bar orange"><i style="width:${sp}%"></i></div><div class="tsub" style="margin-top:6px">day ${S.streak} of 7</div></div>`,hcSm(100))}
+      ${S.oarSilver
+        ?rung('now',progArt(52),'Gold','14-day streak',`<div style="flex:1;min-width:170px"><div class="bar orange"><i style="width:50%"></i></div><div class="tsub" style="margin-top:6px">day 7 of 14</div></div>`,hcSm(250))
+        :rung('locked',lockArt(52),'Gold','14-day streak',lkSm+' Locked — unlocks after Silver',hcSm(250))}
+      ${rung('locked',lockArt(52),'Platinum','30-day streak',lkSm+' Locked — rare by design',hcSm(500))}
+    </div>
+    <div class="rules" data-prd="&sect;3 Streak logic" data-note="The four rules that make streaks protectable, not fragile. Lifted straight from the PRD's edge-case spec.">
+      <h4>How streaks work</h4>
+      <p>${ckSm('#1A5AC2')} Steps count on the day you walked them — a late sync tonight still saves yesterday.</p>
+      <p>${ckSm('#1A5AC2')} At 7:00 PM with the goal unmet, a streak-at-risk nudge goes out.</p>
+      <p>${ckSm('#1A5AC2')} One grace day per rolling 30 — your Streak Saver — auto-applies before a streak can break. ${S.savers} left.</p>
+      <p>${ckSm('#1A5AC2')} Past day 30, Consistency Legend takes over: 60 &rarr; 180 &rarr; 365 &rarr; 730 days.</p>
+    </div>`;
+  }
+  else{
+    const it = instances().find(x=>x.f===id) || {st:'l',sub:'locked'};
+    const icon = it.st==='e'?starArt(it.t?TIER[it.t]:'#4A76C9',86):it.st==='p'?progArt(86):lockArt(86);
+    let stateH='';
+    if(it.st==='e') stateH=`<div class="rung"><div class="who">${starArt(it.t?TIER[it.t]:'#4A76C9',52)}<div><div class="tname">${f.name}${it.tn?' · '+it.tn:''} ${it.count>1?'<span class="count-chip">×'+it.count+'</span>':''}</div><div class="tsub">${it.sub}</div></div></div><div class="state">${ckSm()} Earned</div><div class="hc-cell">${hcSm(parseInt(f.hc)||50)}</div></div>`;
+    else if(it.st==='p') stateH=`<div class="rung now"><div class="who">${progArt(52)}<div><div class="tname">${f.name}${it.tn?' · '+it.tn:''}</div><div class="tsub">${f.crit}</div></div></div><div class="state"><div style="flex:1;min-width:170px"><div class="bar orange"><i style="width:${it.pct}%"></i></div><div class="tsub" style="margin-top:6px">${it.pct}% — ${it.pm}</div></div></div><div class="hc-cell" style="color:var(--hc);font-weight:700">+Hc</div></div>`;
+    else stateH=`<div class="rung locked"><div class="who">${lockArt(52)}<div><div class="tname">${f.name}${it.tn?' · '+it.tn:''}</div><div class="tsub">${f.crit}</div></div></div><div class="state">${lkSm} ${it.sub}</div><div class="hc-cell">Hc ${f.hc}</div></div>`;
+    B.innerHTML=`
+    <div class="bd-head">${icon}<div><div class="t1">${f.name}</div><div class="t2">${f.crit}.</div>
+      <span class="tag">${f.type}</span> <span class="tag">Hc ${f.hc}</span></div></div>
+    <div class="ladder">${stateH}</div>
+    <div class="rules"><h4>Why it exists</h4><p style="display:block">${f.obj||'Part of the Phase 1 catalogue.'}</p></div>`;
+  }
+}
+
+/* ================= RENDER: challenge (6.1 / 6.2 / 6.3) ================= */
+function renderChallenge(){
+  const M=$('cdMain'),Sd=$('cdSide'); if(!M) return;
+  ['before','during','done'].forEach(s=>$('st-'+s).classList.toggle('on',S.stage===s));
+  $('cdTitle').textContent = S.stage==='before'?'July Step Sprint':S.stage==='during'?'July Step Sprint — Day 4 of 10':'July Step Sprint — finished!';
+  const head=`<div class="cd-head"><div class="cd-ic"><svg width="34" height="34" viewBox="0 0 24 24"><path fill="#D6A93F" d="M6 3h12v2h3v3c0 2.5-2 4.4-4.4 4.9A6 6 0 0 1 13 16.9V19h3v2H8v-2h3v-2.1a6 6 0 0 1-3.6-3.9C5 12.4 3 10.5 3 8V5h3V3z"/></svg></div>
+    <div style="flex:1"><div class="cd-name">July Step Sprint</div><div class="cd-meta" id="cdMeta"></div><span class="tag">Goal: 8 of 10 goal days at 8,000+ steps</span></div></div>`;
+  if(S.stage==='before'){
+    M.innerHTML=`<div class="panel">${head.replace('id="cdMeta"></div>','id="cdMeta">10 days &middot; starts Monday &middot; 1,240 colleagues joined</div>')}
+      <div class="earn-box" data-prd="6.1 Before joining" data-note="Badges lower the cost of trying: completion pays even far from the podium. First-time joiners see 'Joining earns Challenger (+50 Hc)' lead this box — Aniket already has it.">
+        ${starArt('#4A76C9',40)}<div><div class="t1">Finisher pays +100 Hc when you complete it</div><div class="t2">&mdash; even if you're nowhere near the podium.</div></div>
+      </div>
+      <div class="serial-line"><span class="lab">Serial Competitor</span><div class="bar orange"><i style="width:${Math.round(S.finisherCount/3*100)}%"></i></div><span class="nxt">${S.finisherCount} of 3 completions &middot; next: Bronze (+50 Hc)</span></div>
+      <div style="margin-top:18px"><button class="btn" onclick="joinChallenge()">Join challenge</button></div>
+    </div>`;
+    Sd.innerHTML=`<div class="gh-title">More challenges</div><div class="gh-box"></div><div class="gh-box"></div><div class="gh-box"></div>`;
+  }
+  else if(S.stage==='during'){
+    M.innerHTML=`<div class="panel">${head.replace('id="cdMeta"></div>','id="cdMeta">Day 4 of 10 &middot; ends 1 Aug</div>')}
+      <div class="prog-big" style="margin-top:16px"><div class="bar" style="position:relative"><i style="width:62%"></i><span class="milestone" style="left:100%"><svg viewBox="0 0 24 24"><path fill="#D6A93F" d="M12 2l2.6 5.6 6.2.7-4.6 4.2 1.3 6.1-5.5-3.1-5.5 3.1 1.3-6.1L3.2 8.3l6.2-.7z"/></svg></span></div></div>
+      <div class="prog-caption">62% &middot; 5 of 8 goal days done &middot; your rank: <b>#47 of 1,240</b></div>
+      <div class="earn-box" data-prd="6.2 During" data-note="No second meter to learn: Finisher tracks the same completion bar the challenge already shows. The star at 100% is the badge.">
+        ${starArt('#4A76C9',40)}<div><div class="t1">Finisher (+100 Hc) unlocks at 100% &mdash; same bar as above</div><div class="t2">3 more goal days to lock it.</div></div>
+      </div>
+      <div class="locked-line">${lkSm} Podium (top 3) +150 Hc &middot; Champion (rank 1) +250 Hc &mdash; currently #47</div>
+      <div style="margin-top:18px"><button class="btn outline" style="border-style:dashed" onclick="setStage('done')">Demo: complete the remaining goal days &rarr;</button></div>
+    </div>`;
+    Sd.innerHTML=`<div class="gh-title">Leaderboard</div><div class="gh-box"></div><div class="gh-box"></div>
+      <div style="border:2px solid var(--blue);border-radius:10px;padding:12px 16px;font-weight:700;display:flex;justify-content:space-between"><span>You</span><span>#47</span></div><div class="gh-box" style="margin-top:12px"></div>`;
+  }
+  else{
+    M.innerHTML=`<div class="panel">${head.replace('id="cdMeta"></div>','id="cdMeta">Finished 1 Aug</div>')}
+      <div style="font-size:20px;font-weight:700;margin-top:14px">You finished <span style="color:var(--navy)">#41 of 1,240</span> &middot; 9 of 10 goal days</div>
+      <div class="done-box" data-prd="6.3 Completion" data-note="Both wins land in one celebration popup (swipeable pages). The next Serial Competitor rung is on screen before the confetti clears — no badge is a dead end.">
+        <div class="done-row">${starArt('#4A76C9',36)}<b>Finisher unlocked</b> <span class="count-chip">×3</span> ${hcSm(100)}</div>
+        <div class="done-row">${starArt(TIER.B,36)}<b>Serial Competitor &middot; Bronze unlocked</b> &mdash; 3 challenges completed ${hcSm(50)}</div>
+        <div class="done-note">one celebration popup, two badges inside (swipe)</div>
+      </div>
+      <div class="next-rung"><div class="t1">Next: Serial Competitor &middot; Silver &mdash; 5 completions</div>
+        <div class="bar orange"><i style="width:60%"></i></div>
+        <div style="font-size:13px;color:var(--muted);margin-top:7px">3 of 5 &middot; +100 Hc</div></div>
+      <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn" onclick="toast('Result card posted to the team feed &mdash; privacy-safe: rank and goal days only, never health data')">Share result</button>
+        <button class="btn outline" onclick="replayDone()">Replay unlock popup</button></div>
+    </div>`;
+    Sd.innerHTML=`<div class="gh-title">Final leaderboard</div><div class="gh-box"></div><div class="gh-box"></div>
+      <div style="border:2px solid var(--blue);border-radius:10px;padding:12px 16px;font-weight:700;display:flex;justify-content:space-between"><span>You</span><span>#41</span></div><div class="gh-box" style="margin-top:12px"></div>`;
+  }
+}
+function setStage(st){
+  const first = st==='done' && !S.doneCelebrated;
+  S.stage=st;
+  if(first){
+    S.doneCelebrated=true; S.finisherCount=3; S.badges+=2; hcCredit(150);
+    renderChallenge();
+    showUnlock([
+      {pill:'CHALLENGE',color:'#4A76C9',name:'Finisher',sub:'July Step Sprint &mdash; 9 of 10 goal days &middot; completion #3',hc:100},
+      {pill:'BRONZE',color:TIER.B,name:'Serial Competitor &middot; Bronze',sub:'3 challenges completed',hc:50,
+       next:{t:'Next: Serial Competitor &middot; Silver &mdash; 5 completions',pct:60,meta:'3 of 5 &middot; +100 Hc'}}
+    ]);
+    renderStrip();renderHub();$('db-finish').classList.add('used');
+  } else renderChallenge();
+}
+function joinChallenge(){ setStage('during'); toast("You're in! Challenger is already on your shelf &mdash; Finisher is the one to chase."); }
+function replayDone(){
+  showUnlock([
+    {pill:'CHALLENGE',color:'#4A76C9',name:'Finisher',sub:'July Step Sprint &mdash; 9 of 10 goal days &middot; completion #3',hc:100},
+    {pill:'BRONZE',color:TIER.B,name:'Serial Competitor &middot; Bronze',sub:'3 challenges completed',hc:50,
+     next:{t:'Next: Serial Competitor &middot; Silver &mdash; 5 completions',pct:60,meta:'3 of 5 &middot; +100 Hc'}}
+  ]);
+}
+
+/* ================= UNLOCK POPUP (5.5) ================= */
+const UP={pages:[],i:0};
+const CONF=['#1A5AC2','#F5821F','#2E8B33','#D6A93F','#4A76C9','#E8621C'];
+function showUnlock(pages){
+  UP.pages=pages; UP.i=0;
+  let c='';
+  for(let i=0;i<26;i++){
+    const x=Math.random()*100, d=(Math.random()*0.5).toFixed(2), fy=(60+Math.random()*120).toFixed(0), fr=(Math.random()*360-180).toFixed(0), col=CONF[i%CONF.length], w=(7+Math.random()*6).toFixed(0);
+    c+=`<i style="left:${x}%;background:${col};width:${w}px;height:${w}px;animation-delay:${d}s;--fy:${fy}px;--fr:${fr}deg"></i>`;
+  }
+  $('uConf').innerHTML=c;
+  renderU();
+  $('uScrim').classList.add('on');
+}
+function renderU(){
+  const p=UP.pages[UP.i], many=UP.pages.length>1;
+  $('uPrev').style.display = many&&UP.i>0?'flex':'none';
+  $('uNext').style.display = many&&UP.i<UP.pages.length-1?'flex':'none';
+  $('uDots').innerHTML = many?UP.pages.map((_,x)=>`<i class="${x===UP.i?'on':''}" onclick="UP.i=${x};renderU()"></i>`).join(''):'';
+  $('uPage').innerHTML=`
+    <div class="u-art">${starArt(p.color,150)}</div>
+    <span class="tier-pill">${p.pill}</span>
+    <div class="u-title">Badge unlocked!</div>
+    <div class="u-sub"><b>${p.name}</b> &mdash; ${p.sub}</div>
+    <div class="u-hc"><span class="hc-coin" style="width:22px;height:22px;font-size:9.5px">Hc</span> +${p.hc} Habit coins added to your wallet</div>
+    ${p.next?`<div class="u-next"><div class="t1">${p.next.t}</div><div class="bar orange" style="margin-top:7px"><i style="width:${p.next.pct}%"></i></div><div style="font-size:12.5px;color:var(--muted);margin-top:6px">${p.next.meta}</div></div>`:''}`;
+}
+function uNav(d){ UP.i=Math.max(0,Math.min(UP.pages.length-1,UP.i+d)); renderU(); }
+function closeUnlock(){ $('uScrim').classList.remove('on'); }
+
+/* ================= ACTIONS ================= */
+function hcCredit(n){
+  S.hc+=n; $('statHc').textContent=fmt(S.hc);
+  const b=$('hcBump'); b.textContent='+'+n; b.classList.remove('on'); void b.offsetWidth; b.classList.add('on');
+}
+function syncSteps(){
+  if(S.synced){ toast('Already synced today &mdash; streak is safe'); return; }
+  S.synced=true; S.todaySteps=8120; S.lifetime+=2700; S.streak+=1; S.best=Math.max(S.best,S.streak);
+  if(!S.oarSilver && S.streak>=7){
+    S.oarSilver=true; S.badges+=1; hcCredit(100);
+    showUnlock([{pill:'SILVER',color:TIER.S,name:'On a Roll &middot; Silver',sub:'7-day streak &mdash; every day at goal',hc:100,
+      next:{t:'Next: On a Roll &middot; Gold &mdash; 14-day streak',pct:50,meta:'day 7 of 14 &middot; +250 Hc'}}]);
+  }
+  $('db-sync').classList.add('used');
+  renderAll();
+}
+function reach500k(){
+  if(S.scSilver) return;
+  S.lifetime=500000; S.scSilver=true; S.badges+=1; hcCredit(100);
+  showUnlock([{pill:'SILVER',color:TIER.S,name:'Step Collector &middot; Silver',sub:'500,000 lifetime steps',hc:100,
+    next:{t:'Next: Step Collector &middot; Gold &mdash; 1,000,000 lifetime steps',pct:50,meta:'500,000 / 1,000,000 &middot; +250 Hc'}}]);
+  $('db-500k').classList.add('used');
+  renderAll();
+}
+function showNudge(){ $('nudge').classList.add('on'); }
+function hideNudge(){ $('nudge').classList.remove('on'); }
+function missDay(){
+  if(S.savers>0){
+    S.savers=0; S.saverUsed=true;
+    $('sBody').innerHTML=`
+      <div class="u-body"><div class="u-art" style="width:110px;height:110px">
+        <svg width="110" height="110" viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" fill="#FDF2E6"/><path fill="#F5821F" d="M26 12s1.6 5-2.3 9c-3 3-5.5 5.2-5.5 9.8a7.8 7.8 0 0 0 15.6 0c0-2.5-.9-4.5-2.2-6.2-.5 1.6-1.4 2.8-2.6 3.4.6-4.2-.8-10.3-3-13z"/><circle cx="38" cy="14" r="9" fill="#2E8B33"/><path d="M34 14l3 3 5-5.5" stroke="#fff" stroke-width="2.6" fill="none"/></svg></div>
+      <div class="u-title" style="font-size:26px">Streak Saver used</div>
+      <div class="u-sub">Yesterday closed at 5,420 / 8,000 steps. Your grace day covered it &mdash; the <b>${S.streak}-day streak is intact</b>.</div>
+      <div class="u-next" style="border-color:#D5DCE6;background:#F7F9FC"><div style="font-size:13.5px;color:#3A4757">&bull; 0 grace days left &middot; next one in 24 days<br>&bull; Late syncs never need a saver &mdash; steps count on the day you walked them.</div></div>
+      <div class="u-btns"><button class="btn" onclick="$('sScrim').classList.remove('on')">Got it</button></div></div>`;
+    $('sScrim').classList.add('on');
+    $('db-miss').querySelector('small').textContent='again = reset';
+  } else if(!S.streakLost){
+    const was=S.streak;
+    S.streakLost=true; S.streak=0; S.synced=false; S.oarSilver=false; S.todaySteps=0;
+    $('sBody').innerHTML=`
+      <div class="u-body"><div class="u-art" style="width:110px;height:110px">
+        <svg width="110" height="110" viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" fill="#F2F4F7"/><path fill="#9AA6B5" d="M26 12s1.6 5-2.3 9c-3 3-5.5 5.2-5.5 9.8a7.8 7.8 0 0 0 15.6 0c0-2.5-.9-4.5-2.2-6.2-.5 1.6-1.4 2.8-2.6 3.4.6-4.2-.8-10.3-3-13z"/></svg></div>
+      <div class="u-title" style="font-size:26px">Streak ended at ${was}</div>
+      <div class="u-sub">No grace days were left, so On a Roll resets to day 0. Your <b>best run (${S.best} days) stays on the ladder</b> &mdash; Silver still unlocks at 7.</div>
+      <div class="u-btns"><button class="btn" onclick="$('sScrim').classList.remove('on')">Start again today</button></div></div>`;
+    $('sScrim').classList.add('on');
+    $('db-miss').classList.add('used');
+    renderAll();
+  } else toast('Streak already reset &mdash; use "Reset demo state" to start over');
+}
+function toggleAnn(e){
+  document.body.classList.toggle('ann');
+  $('annSw').classList.toggle('on');
+  if(document.body.classList.contains('ann')&&!S.annSeen){S.annSeen=true;toast('Orange tags mark each PRD integration &mdash; hover any tag for the why');}
+}
+function deadEnd(name){ toast(name+' is unchanged from the live app &mdash; outside this prototype'); }
+let toastT=null;
+function toast(msg){
+  const t=$('toast'); t.innerHTML=msg; t.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),3400);
+}
+
+/* ================= ROUTER ================= */
+function go(screen,id){
+  $('pmenu').classList.remove('on');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  const map={home:'scr-home',challenges:'scr-challenges',chal:'scr-chal',hub:'scr-hub',badge:'scr-badge'};
+  $(map[screen]).classList.add('on');
+  $('navChallenges').classList.toggle('active',screen==='challenges'||screen==='chal');
+  if(screen==='hub'){ renderHub(); renderAlmost();
+    if(!S.hubSeen){ S.hubSeen=true; document.querySelectorAll('.qcard .new-pill, .pmenu .np').forEach(e=>e.style.display='none'); } }
+  if(screen==='badge') renderBadgeDetail(id||'step-collector');
+  if(screen==='chal') renderChallenge();
+  window.scrollTo({top:0});
+}
+function resetDemo(){
+  S=initState();
+  document.querySelectorAll('.dbtn.used').forEach(b=>b.classList.remove('used'));
+  $('db-miss').querySelector('small').textContent='edge case';
+  document.querySelectorAll('.qcard .new-pill, .pmenu .np').forEach(e=>e.style.display='');
+  closeUnlock(); $('sScrim').classList.remove('on'); hideNudge();
+  renderAll(); go('home');
+  toast('Demo reset &mdash; Day 6 of the streak, 12 badges on the shelf');
+}
+
+/* ================= INIT ================= */
+$('avatarBtn').addEventListener('click',e=>{ e.stopPropagation(); $('pmenu').classList.toggle('on'); });
+document.addEventListener('click',e=>{ if(!e.target.closest('.avatar-wrap')) $('pmenu').classList.remove('on'); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeUnlock(); $('sScrim').classList.remove('on'); hideNudge(); } });
+renderAll();
+setStage('before');
+</script>
+</body>
+</html>
